@@ -7,11 +7,13 @@
     <!-- insert title here, include the word HOWTO -->
     <title>MapServer HTML Legend HOWTO - Version 4.2</title>
     <author>
-      <firstname/>
-      <surname/>
+      <firstname>Jeff</firstname>
+      <surname>McKenna</surname>
       <affiliation>
         <orgname>DM Solutions Group Inc.</orgname>
-        <address/>
+        <address>
+          <email>mckenna@dmsolutions.ca</email>
+        </address>
       </affiliation>
     </author>
     <date>2002-04-18</date>
