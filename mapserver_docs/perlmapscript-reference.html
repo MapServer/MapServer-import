@@ -10,7 +10,7 @@
 <h2><u>Perl MapScript Reference</u></h2>
 <b><u>Abstract:<br></u></b>
 This document is a reference to the Perl MapScript syntax for MapServer version 3.6.x.<br>
-<b>Important Note for 3.6.4: The version of Swig used to build the Perl/Python/Tcl interfaces is different than in previous releases.<br>
+<b>Important Note for 3.6.4+: The version of Swig used to build the Perl/Python/Tcl interfaces is different than in previous releases.<br>
 As a result: "$map = new mapObj(...);" becomes "$map = new mapscript::mapObj(...);"</b><br>
 Be <b>Sure</b> to see the <a href="http://mapserver.gis.umn.edu/cgi-bin/wiki.pl?PerlMapScript">Wiki</a> for Build, Install, Samples, & Debugging Help.<br>
 Last Updated: 2/19/2003 by <a href="mailto:lfilak@medinaco.org">Lowell Filak</a>
@@ -1487,7 +1487,7 @@ Each class is described in detail later in this document.<br>
 </table>
 <br>
 <a name="dbfinfo"></a><br>
-<a href="#toc"><b><u>DBFInfo:</u></b></a><br>
+<a href="#toc"><b><u>DBFInfo: (please use XBase.pm instead which can be coupled with DBI to add SQL functionality)</u></b></a><br>
 <br>
 <table border="0">
   <tr>
