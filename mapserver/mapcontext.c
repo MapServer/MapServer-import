@@ -29,6 +29,9 @@
  * DEALINGS IN THE SOFTWARE.
  **********************************************************************
  * $Log$
+ * Revision 1.58.2.3  2004/09/12 19:29:34  julien
+ * Include all OWS versions
+ *
  * Revision 1.58.2.2  2004/09/12 18:32:30  julien
  * Set different metadata for WMS and WFS
  *
@@ -1335,7 +1338,7 @@ int msLoadMapContextFeature(mapObj *map, CPLXMLNode *psLayer,int nVersion,
   layer = &(map->layers[map->numlayers]);
   initLayer(layer, map);
   layer->map = (mapObj *)map;
-  layer->type = MS_LAYER_RASTER;
+  layer->type = MS_LAYER_POINT;
   layer->connectiontype = MS_WFS;
   /* save the index */
   map->layers[map->numlayers].index = map->numlayers;
@@ -1482,22 +1485,24 @@ int msLoadMapContext(mapObj *map, char *filename)
       nVersion = MAKE_WMS_CONTEXT(nVersion);
 
   // Make sure this is a supported version
-  switch ( CONTEXT_VERSION(nVersion) )
+  if( !IS_OWS_CONTEXT(nVersion) )
   {
-    case OWS_0_0_7:
-    case OWS_0_1_2:
-    case OWS_0_1_4:
-    case OWS_0_1_7:
-    case OWS_1_0_0:
-      // All is good, this is a supported version.
-      break;
-    default:
-      // Not a supported version
-      msSetError(MS_MAPCONTEXTERR, 
-                 "This version of Map Context is not supported (%s).",
-                 "msLoadMapContext()", pszValue);
-      CPLDestroyXMLNode(psRoot);
-      return MS_FAILURE;
+      switch ( CONTEXT_VERSION(nVersion) )
+      {
+        case OWS_0_1_2:
+        case OWS_0_1_4:
+        case OWS_0_1_7:
+        case OWS_1_0_0:
+          // All is good, this is a supported version.
+          break;
+        default:
+          // Not a supported version
+          msSetError(MS_MAPCONTEXTERR, 
+                     "This version of Map Context is not supported (%s).",
+                     "msLoadMapContext()", pszValue);
+          CPLDestroyXMLNode(psRoot);
+          return MS_FAILURE;
+      }
   }
 
   // Reformat and save Version in metadata
@@ -2302,20 +2307,22 @@ int msWriteMapContext(mapObj *map, FILE *stream)
 
   // Make sure this is a supported version
   // Note that we don't write 0.1.2 even if we read it.
-  switch ( CONTEXT_VERSION(nVersion) )
+  if( !IS_OWS_CONTEXT(nVersion) )
   {
-    case OWS_0_0_7:
-    case OWS_0_1_4:
-    case OWS_0_1_7:
-    case OWS_1_0_0:
-      // All is good, this is a supported version.
-      break;
-    default:
-      // Not a supported version
-      msSetError(MS_MAPCONTEXTERR, 
-                 "This version of Map Context is not supported (%s).",
-                 "msSaveMapContext()", version);
-      return MS_FAILURE;
+      switch ( CONTEXT_VERSION(nVersion) )
+      {
+        case OWS_0_1_4:
+        case OWS_0_1_7:
+        case OWS_1_0_0:
+          // All is good, this is a supported version.
+          break;
+        default:
+          // Not a supported version
+          msSetError(MS_MAPCONTEXTERR, 
+                     "This version of Map Context is not supported (%s).",
+                     "msSaveMapContext()", version);
+          return MS_FAILURE;
+      }
   }
 
   // file header
@@ -2330,7 +2337,7 @@ int msWriteMapContext(mapObj *map, FILE *stream)
       char szVersionBuf[OWS_VERSION_MAXLEN];
 
       fprintf( stream, "<OWSContext version=\"%s\"", 
-               msOWSGetVersionString( (nVersion - 0x010000), szVersionBuf ) );
+               msOWSGetVersionString(CONTEXT_VERSION(nVersion), szVersionBuf));
   }
   else if( CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
   {
@@ -2370,7 +2377,7 @@ int msWriteMapContext(mapObj *map, FILE *stream)
   if( IS_OWS_CONTEXT(nVersion) )
   {
       fprintf( stream, 
-               " xsi:schemaLocation=\"http://www.opengis.net/context context_0_0_5.xsd\">\n");
+               " xsi:schemaLocation=\"http://www.opengis.net/context context_0_0_7.xsd\">\n");
   }
   else if( CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
   {
