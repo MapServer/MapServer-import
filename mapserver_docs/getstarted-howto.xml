@@ -30,12 +30,12 @@
 			</affiliation>
 		</author>
 
-		<date>2002-02-15</date>
+		<date>2004-01-23</date>
 		<abstract>
 			<para>
                  This document describes the components of a MapServer application and how 
                  they work together.  It also gives suggestions for getting your first application
-                 running.
+                 running. This is a test.
                </para>
 			<para>Last Updated: 02/15/2002</para>
 		</abstract>
