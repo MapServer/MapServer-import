@@ -1,0 +1,1818 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.0: http://docutils.sourceforge.net/" />
+<meta name="date" content="2004-05-25" />
+<meta name="author" content="Sean Gillies" />
+<link rel="stylesheet" href="mapscript.css" type="text/css" />
+</head>
+<body>
+<div class="section" id="documentation-elements">
+<h2><a class="toc-backref" href="#contents" name="documentation-elements">Documentation Elements</a></h2>
+<p>Classes will be documented in alphabetical order in the manner outlined below.
+Attributes and methods will be formatted as definition lists with the
+attribute or method as item, the type or return type as classifier, and a
+concise description. To make the document as agnostic as possible, we refer to
+the following types: int, float, and string.  There are yet no mapscript
+methods that return arrays or sequences or accept array or sequence arguments.</p>
+<p>We will use the SWIG term <em>immutable</em> to indicate that an attribute's value
+is read-only.</p>
+</div>
+<div class="section" id="fooobj">
+<h2><a class="toc-backref" href="#contents" name="fooobj">fooObj</a></h2>
+<p>A paragraph or two about class fooObj.</p>
+<div class="section" id="attributes">
+<h3><a name="attributes">Attributes</a></h3>
+<dl>
+<dt>attribute <span class="classifier-delimiter">:</span> <span class="classifier">type [access]</span></dt>
+<dd>Concise description of the attribute.</dd>
+</dl>
+<p>Attribute name are completely lower case.  Multiple words are
+packed together like <em>outlinecolor</em>.</p>
+<div class="note">
+<p class="admonition-title">Note</p>
+Because of the way that mapscript is generated many confusing,
+meaningless, and even dangerous attributes are creeping into objects.  See
+outputFormatObj.refcount for example.  Until we get a grip on the structure
+members we are exposing to SWIG this problem will continue to grow.</div>
+</div>
+<div class="section" id="methods">
+<h3><a name="methods">Methods</a></h3>
+<dl>
+<dt>method( type mandatory_parameter [, type optional_parameter=default ] ) <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dd>Description of the method including elaboration on the method
+arguments, the method's actions, and returned values.  Optional
+parameters and their default values are enclosed in brackets.</dd>
+</dl>
+<p>Class method names are camel case with a leading lower case character
+like <em>getExpressionString</em>.</p>
+<p>Now that the style of the documentation has been introduced, on to the
+module itself.</p>
+</div>
+</div>
+</div>
+<div class="section" id="mapscript-classes">
+<h1><a class="toc-backref" href="#contents" name="mapscript-classes">Mapscript Classes/Objects</a></h1>
+<div class="section" id="classobj">
+<h2><a class="toc-backref" href="#contents" name="classobj">classObj</a></h2>
+<p>An instance of classObj is associated with with one instance of <a class="reference" href="#layerobj">layerObj</a>.</p>
+<pre class="literal-block">
++-------+ 0..*     1 +-------+
+| Class | &lt;--------&gt; | Layer |
++-------+            +-------+
+</pre>
+<p>The other important associations for classObj are with <a class="reference" href="#styleobj">styleObj</a> and
+<a class="reference" href="#labelobj">labelObj</a>.</p>
+<pre class="literal-block">
++-------+ 1     0..* +-------+
+| Class | ---------&gt; | Style |
++-------+            +-------+
+
++-------+ 1     0..1 +-------+
+| Class | ---------&gt; | Label |
++-------+            +-------+
+</pre>
+<p>Multiple class styles are now supported in 4.1.  See the <a class="reference" href="#styleobj">styleObj</a> section
+for details on use of multiple class styles.</p>
+<div class="section" id="id1">
+<h3><a name="id1">Attributes</a></h3>
+<dl>
+<dt>debug <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE</dd>
+<dt>keyimage <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong> Not sure what this attribute is for</dd>
+<dt>label <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelobj">labelObj</a></span></dt>
+<dd>Definition of class labeling</dd>
+<dt>layer <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#layerobj">layerObj</a> immutable</span></dt>
+<dd>Reference to the parent layer</dd>
+<dt>maxscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The maximum scale at which class is drawn</dd>
+<dt>minscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The minimum scale at which class is drawn</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Unique within a layer</dd>
+<dt>numstyles <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of styles for class.  In the future, probably the 4.4 release,
+this attribute will be made <em>immutable</em>.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON or MS_OFF.  Draw features of this class or do not.</dd>
+<dt>template <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Template for queries</dd>
+<dt>title <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Text used for legend labeling</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The layer type of its parent layer</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h3><a name="id2">Methods</a></h3>
+<a class="target" id="new-classobj" name="new-classobj"></a><dl>
+<dt>new classObj( <a class="reference" href="#layerobj">layerObj</a> parent_layer ) <span class="classifier-delimiter">:</span> <span class="classifier">classObj</span></dt>
+<dd>Create a new child classObj instance at the tail (highest index) of 
+the class array of the <em>parent_layer</em>.</dd>
+</dl>
+<a class="target" id="createlegendicon" name="createlegendicon"></a><dl>
+<dt>createLegendIcon( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#layerobj">layerObj</a> layer, int width, int height ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw and return a new legend icon.</dd>
+</dl>
+<a class="target" id="drawlegendicon" name="drawlegendicon"></a><dl>
+<dt>drawLegendIcon( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#layerobj">layerObj</a> layer, int width, int height, <a class="reference" href="#imageobj">imageObj</a> image, int dstx, int dsty ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw the legend icon onto <em>image</em> at <em>dstx</em>, <em>dsty</em>.  Returns 
+MS_SUCCESS or MS_FAILURE.</dd>
+<dt>getExpressionString( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return a string representation of the expression enclosed in the quote
+characters appropriate to the expression type.</dd>
+<dt>getFirstMetaDataKey( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the first key in the metadata hash table.  With
+getNextMetaDataKey( ), provides an opaque iterator over keys.</dd>
+<dt>getMetaData( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the value of the classObj metadata at <em>key</em>.</dd>
+<dt>getNextMetaDataKey( string lastkey ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the next key in the metadata hash table or NULL if
+<em>lastkey</em> is the last valid key.  If <em>lastkey</em> is NULL, returns the
+first key of the metadata hash table.</dd>
+<dt>getStyle( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#styleobj">styleObj</a></span></dt>
+<dd><p class="first">Return a reference to the styleObj at <em>index</em> in the styles array.</p>
+<p class="last">See the <a class="reference" href="#styleobj">styleObj</a> section for more details on multiple class styles.</p>
+</dd>
+<dt>insertStyle( <a class="reference" href="#styleobj">styleObj</a> style [, int index=-1 ] ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Insert a <strong>copy</strong> of <em>style</em> into the styles array at index <em>index</em>.
+Default is -1, or the end of the array.  Returns the index at which the 
+style was inserted.</dd>
+<dt>moveStyleDown( int index ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Swap the styleObj at <em>index</em> with the styleObj <em>index</em> + 1.</dd>
+</dl>
+<a class="target" id="movestyleup" name="movestyleup"></a><dl>
+<dt>moveStyleUp( int index ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Swap the styleObj at <em>index</em> with the styleObj <em>index</em> - 1.</dd>
+</dl>
+<a class="target" id="removestyle" name="removestyle"></a><dl>
+<dt>removeStyle( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#styleobj">styleObj</a></span></dt>
+<dd>Remove the styleObj at <em>index</em> from the styles array and return a
+copy.</dd>
+</dl>
+<a class="target" id="setexpression" name="setexpression"></a><dl>
+<dt>setExpression( string expression ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set expression string where <em>expression</em> is a MapServer regular, logical
+or string expression.  Returns MS_SUCCESS or MS_FAILUIRE.</dd>
+</dl>
+<a class="target" id="classobj-setmetadata" name="classobj-setmetadata"></a><dl>
+<dt>setMetaData( string key, string value ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Insert <em>value</em> into the classObj metadata at <em>key</em>.  Returns MS_SUCCESS
+or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="colorobj">
+<h2><a class="toc-backref" href="#contents" name="colorobj">colorObj</a></h2>
+<p>Since the 4.0 release, MapServer colors are instances of colorObj.  A colorObj
+may be a lone object or an attribute of other objects and have no other
+associations.</p>
+<div class="section" id="id3">
+<h3><a name="id3">Attributes</a></h3>
+<dl>
+<dt>blue <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Blue component of color in range [0-255]</dd>
+<dt>green <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Green component of color in range [0-255]</dd>
+<dt>red <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Red component of color in range [0-255]</dd>
+<dt>pen <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> trigger for change in mapserver pens?</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+Because of the issue with <em>pen</em>, setting colors by individual
+components is unreliable.  Best practice is to use setRGB(), setHex(),
+or assign to a new instance of colorObj().</div>
+</div>
+<div class="section" id="id4">
+<h3><a name="id4">Methods</a></h3>
+<dl>
+<dt>new colorObj( [ int red=0, int green=0, int blue=0 ] ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a> </span></dt>
+<dd>Create a new instance.  The color arguments are optional.</dd>
+<dt>setRGB( int red, int green, int blue ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Set all three RGB components.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setHex( string hexcolor ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Set the color to values specified in case-independent hexadecimal
+notation.  Calling setHex('#ffffff') assigns values of 255 to each
+color component.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>toHex( ) <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
+<dd>Compliments setHex, returning a hexadecimal representation of the
+color components.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="errorobj">
+<h2><a class="toc-backref" href="#contents" name="errorobj">errorObj</a></h2>
+<p>Provides access to module errors.  Has no associations with other
+classes.</p>
+<p>See <a class="reference" href="http://mapserver.gis.umn.edu/bugs/long_list.cgi?buglist=346">http://mapserver.gis.umn.edu/bugs/long_list.cgi?buglist=346</a> for a usage
+example.</p>
+<div class="section" id="id5">
+<h3><a name="id5">Attributes</a></h3>
+<dl>
+<dt>code <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>A MapServer error code such as MS_IOERR (1), MS_MEMERR (2), etc.</dd>
+<dt>message <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Detailed error message.</dd>
+<dt>routine <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>The name of the MapServer function in which the error occurs.</dd>
+</dl>
+</div>
+<div class="section" id="id6">
+<h3><a name="id6">Methods</a></h3>
+<dl>
+<dt>new errorObj( ) <span class="classifier-delimiter">:</span> <span class="classifier">errorObj</span></dt>
+<dd>Return an instance of errorObj used as a starting point for accessing
+the mapscript error stack.</dd>
+<dt>next( ) <span class="classifier-delimiter">:</span> <span class="classifier">errorObj</span></dt>
+<dd>Return the next errorObj in the module's error stack.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="fontsetobj">
+<h2><a class="toc-backref" href="#contents" name="fontsetobj">fontSetObj</a></h2>
+<p>A fontSetObj is always an attribute of a <a class="reference" href="#mapobj">mapObj</a>.</p>
+<div class="section" id="id7">
+<h3><a name="id7">Attributes</a></h3>
+<dl>
+<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>Path to the fontset file on disk.</dd>
+<dt>numfonts <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of fonts in set.</dd>
+</dl>
+</div>
+<div class="section" id="id8">
+<h3><a name="id8">Methods</a></h3>
+<dl>
+<dt>getFirstFont( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the name of the first font in the fonts hash table.  Along with
+getNextFont( ), provides an opaque iterator for fonts.</dd>
+<dt>getNextFont( string lastfont ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the next font following <em>lastfont</em> in the fonts hash table or
+NULL if <em>lastfont</em> is the last non-NULL key.  If <em>lastfont</em> is NULL,
+returns the <strong>first</strong> key of the fonts hash table.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="graticuleobj">
+<h2><a class="toc-backref" href="#contents" name="graticuleobj">graticuleObj</a></h2>
+<p>A graticuleObj is always an attribute of a layerObj and has no other
+associations.</p>
+<div class="section" id="id9">
+<h3><a name="id9">Attributes</a></h3>
+<p><strong>TODO</strong></p>
+</div>
+<div class="section" id="id10">
+<h3><a name="id10">Methods</a></h3>
+<p>None.</p>
+</div>
+</div>
+<div class="section" id="imageobj">
+<h2><a class="toc-backref" href="#contents" name="imageobj">imageObj</a></h2>
+<p>An image object is a wrapper for GD and GDAL images.</p>
+<div class="section" id="id11">
+<h3><a name="id11">Attributes</a></h3>
+<dl>
+<dt>format <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#outputformatobj">outputFormatObj</a></span></dt>
+<dd>Image format.</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Image height in pixels.</dd>
+<dt>imagepath <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>If image is drawn by mapObj.draw( ), this is the mapObj's web.imagepath.</dd>
+<dt>imageurl <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>If image is drawn by mapObj.draw( ), this is the mapObj's web.imageurl.</dd>
+<dt>renderer <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>MS_RENDER_WITH_GD, MS_RENDER_WITH_SWF, MS_RENDER_WITH_RAWDATA,
+MS_RENDER_WITH_PDF, or MS_RENDER_WITH_IMAGEMAP</dd>
+<dt>size <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>I don't see where this is used.  Anyone?</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Image width in pixels.</dd>
+</dl>
+</div>
+<div class="section" id="id12">
+<h3><a name="id12">Methods</a></h3>
+<dl>
+<dt>new imageObj( int width, int height [, string driver=NULL [, string filename=NULL ] ] ) <span class="classifier-delimiter">:</span> <span class="classifier">imageObj</span></dt>
+<dd>Create new instance of imageObj.  If <em>filename</em> is specified, an imageObj
+is created from the file and any specified <em>width</em>, <em>height</em>, and
+<em>driver</em> parameters will be overridden by values of the image in 
+<em>filename</em>.  Otherwise, if <em>driver</em> is specified an imageObj is created
+using that driver.  See the <em>driver</em> attribute above for details.  If
+<em>filename</em> is not specified, then <em>width</em> and <em>height</em> should be specified.</dd>
+<dt>free( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>In MapServer 4.2 this method does nothing, in 4.3 it is removed from
+the module entirely.</dd>
+<dt>save( string filename [, mapObj parent_map=NULL ] ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save image to <em>filename</em>.  The optional <em>parent_map</em> parameter must be
+specified if saving GeoTIFF images.</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+The free( ) method of imageObj has been deprecated.  In MapServer
+revisions 4+ all instances of imageObj will be properly disposed of by
+the interpreter's garabage collector.  If the application can't wait 
+for garabage collection, then the instance can simply be deleted or
+undef'd.</div>
+</div>
+</div>
+<div class="section" id="labelobj">
+<h2><a class="toc-backref" href="#contents" name="labelobj">labelObj</a></h2>
+<p>A labelObj is associated with a classObj, a scalebarObj, or a legendObj.</p>
+<pre class="literal-block">
++-------+ 0..1     1 +----------+
+| Label | &lt;--------- | Class    |
++-------+            | -------- |
+                     | Scalebar |
+                     | -------- |
+                     | Legend   |
+                     +----------+ 
+</pre>
+<div class="section" id="id13">
+<h3><a name="id13">Attributes</a></h3>
+<dl>
+<dt>angle <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>antialias <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE</dd>
+<dt>autoangle <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE</dd>
+<dt>autominfeaturesize: int</dt>
+<dd>MS_TRUE or MS_FALSE</dd>
+<dt>backgroundcolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Color of background rectangle or billboard.</dd>
+<dt>backgroundshadowcolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Color of background rectangle or billboard shadow.</dd>
+<dt>backgroundshadowsizex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Horizontal offset of drop shadow in pixels.</dd>
+<dt>backgroundshadowsizey <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Vertical offset of drop shadow in pixels.</dd>
+<dt>buffer <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Maybe this should've been named 'padding' since that's what it is:
+padding in pixels around a label.</dd>
+<dt>color <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Foreground color.</dd>
+<dt>font <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of TrueType font.</dd>
+<dt>force <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>maxsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Maximum height in pixels for scaled labels.  See symbolscale attribute
+of <a class="reference" href="#layerobj">layerObj</a>.</dd>
+<dt>mindistance <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Minimum distance in pixels between duplicate labels.</dd>
+<dt>minfeaturesize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Features of this size of greater will be labeled.</dd>
+<dt>minsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Minimum height in pixels.</dd>
+<dt>offsetx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Horizontal offset of label.</dd>
+<dt>offsety <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Vertical offset of label.</dd>
+<dt>outlinecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Color of one point outline.</dd>
+<dt>partials <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE (default) or MS_FALSE.  Whether or not labels can flow past
+the map edges.</dd>
+<dt>postion <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_UL, MS_UC, MS_UR, MS_CL, MS_CC, MS_CR, MS_LL, MS_LC, MS_LR, or
+MS_AUTO.</dd>
+<dt>shadowcolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Color of drop shadow.</dd>
+<dt>shadowsizex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Horizontal offset of drop shadow in pixels.</dd>
+<dt>shadowsizey <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Vertical offset of drop shadow in pixels.</dd>
+<dt>size <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Annotation height in pixels.</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_BITMAP or MS_TRUETYPE.</dd>
+<dt>wrap <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Character on which legend text will be broken to make multi-line
+legends.</dd>
+</dl>
+</div>
+<div class="section" id="id14">
+<h3><a name="id14">Methods</a></h3>
+<p>None</p>
+</div>
+</div>
+<div class="section" id="labelcachememberobj">
+<h2><a class="toc-backref" href="#contents" name="labelcachememberobj">labelCacheMemberObj</a></h2>
+<p>An individual feature label.  The labelCacheMemberObj class is associated
+with labelCacheObj.</p>
+<pre class="literal-block">
++------------------+ 0..*     1 +------------+
+| LabelCacheMember | &lt;--------- | LabelCache |
++------------------+            +------------+
+</pre>
+<div class="section" id="id15">
+<h3><a name="id15">Attributes</a></h3>
+<dl>
+<dt>classindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Index of the class of the labeled feature.</dd>
+<dt>featuresize <span class="classifier-delimiter">:</span> <span class="classifier">float immutable</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>label <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelobj">labelObj</a> immutable</span></dt>
+<dd>Copied from the class of the labeled feature.</dd>
+<dt>layerindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>The index of the layer of the labeled feature.</dd>
+<dt>numstyles <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of styles as for the class of the labeled feature.</dd>
+<dt>point <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#pointobj">pointObj</a> immutable</span></dt>
+<dd>Label point.</dd>
+<dt>poly <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#shapeobj">shapeObj</a> immutable</span></dt>
+<dd>Label bounding box.</dd>
+<dt>shapeindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Index within shapefile of the labeled feature.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Has the label been drawn or not?</dd>
+<dt>string <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>Label text.</dd>
+<dt>styles <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#styleobj">styleObj</a> immutable</span></dt>
+<dd><strong>TODO</strong> this should be protected from SWIG.</dd>
+<dt>tileindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Tileindex of the layer of the labeled feature.</dd>
+</dl>
+</div>
+<div class="section" id="id16">
+<h3><a name="id16">Methods</a></h3>
+<p>None.</p>
+<div class="note">
+<p class="admonition-title">Note</p>
+No real scripting control over labeling currently, but there may be
+some interesting new possibilities if users have control over labeling
+text, position, and status.</div>
+</div>
+</div>
+<div class="section" id="labelcacheobj">
+<h2><a class="toc-backref" href="#contents" name="labelcacheobj">labelCacheObj</a></h2>
+<p>Set of a map's cached labels.  Has no other existence other than as an
+attribute of a mapObj.  Associated with labelCacheMemberObj and
+markerCacheMemberObj.</p>
+<pre class="literal-block">
++------------+ 1     0..* +-------------------+
+| LabelCache | ---------&gt; | LabelCacheMember  |
++------------+            + ----------------- +
+                          | MarkerCacheMember |
+                          +-------------------+
+</pre>
+<div class="section" id="id17">
+<h3><a name="id17">Attributes</a></h3>
+<dl>
+<dt>cachesize <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>markercachesize <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>numlabels <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of label members.</dd>
+<dt>nummarkers <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of marker members.</dd>
+</dl>
+</div>
+<div class="section" id="id18">
+<h3><a name="id18">Methods</a></h3>
+<dl>
+<dt>freeCache( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Free the labelcache.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="layerobj">
+<h2><a class="toc-backref" href="#contents" name="layerobj">layerObj</a></h2>
+<p>A layerObj is associated with one mapObj and has no other existence <a class="footnote-reference" href="#id58" id="id19" name="id19"><sup>1</sup></a>.</p>
+<pre class="literal-block">
++-------+ 0..*     1 +-----+
+| Layer | &lt;--------&gt; | Map |
++-------+            +-----+
+</pre>
+<p>The other important association for layerObj is with classObj</p>
+<pre class="literal-block">
++-------+ 1     0..* +-------+
+| Layer | &lt;--------&gt; | Class |
++-------+            +-------+
+</pre>
+<div class="section" id="id20">
+<h3><a name="id20">Attributes</a></h3>
+<dl>
+<dt>classitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>The attribute used to classify layer data.</dd>
+<dt>connection <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Layer connection or DSN.</dd>
+<dt>connectiontype <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>See MS_CONNECTION_TYPE in map.h for possible values.</dd>
+<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Layer data definition, values depend upon connectiontype.</dd>
+<dt>debug <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Enable debugging of layer.  MS_ON or MS_OFF (default).</dd>
+<dt>dump <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Switch to allow mapserver to return data in GML format.  MS_TRUE or
+MS_FALSE.  Default is MS_FALSE.</dd>
+<dt>filteritem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining filter.</dd>
+<dt>footer <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>group <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of a group of layers.</dd>
+<dt>header <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>index <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Index of layer within parent map's layers array.</dd>
+<dt>labelcache <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON or MS_OFF.  Default is MS_ON.</dd>
+<dt>labelangleitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining label angle.</dd>
+<dt>labelitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining feature label text.</dd>
+<dt>labelrequires <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Logical expression.</dd>
+<dt>labelsizeitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining label size.</dd>
+<dt>labelmaxscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Maximum scale at which layer will be labeled.</dd>
+<dt>labelminscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Minimum scale at which layer will be labeled.</dd>
+<dt>map <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#mapobj">mapObj</a> immutable</span></dt>
+<dd>Reference to parent map.</dd>
+<dt>maxfeatures <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Maximum number of layer features that will be drawn.  For shapefile data
+this means the first N features where N = maxfeatures.</dd>
+<dt>maxscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Maximum scale at which layer will be drawn.</dd>
+<dt>minscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Minimum scale at which layer will be drawn.</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Unique identifier for layer.</dd>
+<dt>numclasses <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of layer classes.</dd>
+<dt>numitems <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of layer feature attributes (items).</dd>
+<dt>numjoins <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of layer joins.</dd>
+<dt>numprocessing <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of raster processing directives.</dd>
+<dt>offsite <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>transparent pixel value for raster layers.</dd>
+<dt>postlabelcache <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.  Default is MS_FALSE.  <strong>TODO</strong> not entirely clear
+whether this overrides the labelcache attribute.</dd>
+<dt>requires <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Logical expression.</dd>
+<dt>sizeunits <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Units of class size values.  See MS_UNITS in map.h.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON, MS_OFF, or MS_DEFAULT.</dd>
+<dt>styleitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining styles.</dd>
+<dt>symbolscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Scale at which symbols are default size.</dd>
+<dt>template <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Template file.  Note that for historical reasons, the query attribute
+must be non-NULL for a layer to be queryable.</dd>
+<dt>tileindex <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Layer index file for tiling support.</dd>
+<dt>tileitem <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Attribute defining tile paths.</dd>
+<dt>tolerance <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Search buffer for point and line queries.</dd>
+<dt>toleranceunits <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>See MS_UNITS in map.h.</dd>
+<dt>transform <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Whether or not layer data is to be transformed to image units.  
+MS_TRUE or MS_FALSE.  Default is MS_TRUE.  Case of MS_FALSE is for
+data that are in image coordinates such as annotation points.</dd>
+<dt>transparency <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Layer transparency in range [0, 100].</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>See MS_LAYER_TYPE in map.h.</dd>
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Units of the layer.  See MS_UNITS in map.h.</dd>
+</dl>
+</div>
+<div class="section" id="id21">
+<h3><a name="id21">Methods</a></h3>
+<p><strong>TODO</strong></p>
+<dl>
+<dt>new layerObj( <a class="reference" href="#mapobj">mapObj</a> parent_map ) <span class="classifier-delimiter">:</span> <span class="classifier">layerObj</span></dt>
+<dd>Create a new layerObj in <em>parent_map</em>.  The layer index of the new layerObj
+will be equal to the <em>parent_map</em> numlayers - 1.</dd>
+<dt>addFeature( <a class="reference" href="#shapeobj">shapeObj</a> shape ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Add a new inline feature on a layer.  Returns -1 on error. 
+<strong>TODO</strong>: Is this similar to inline features in a mapfile?  Does it work
+for any kind of layer or connection type?</dd>
+<dt>applySLD( string sld, string stylelayer ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Apply the SLD document to the layer object. 
+The matching between the sld document and the layer will be done 
+using the layer's name.
+If a namedlayer argument is passed (argument is optional), 
+the NamedLayer in the sld that matchs it will be used to style 
+the layer. See SLD HOWTO for more information on the SLD support.</dd>
+<dt>applySLDURL( string sld, string stylelayer ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Apply the SLD document pointed by the URL to the layer object. The 
+matching between the sld document and the layer will be done using 
+the layer's name.
+If a namedlayer argument is passed (argument is optional), 
+the NamedLayer in the sld that matchs it will be used to style 
+the layer.
+See SLD HOWTO for more information on the SLD support.</dd>
+<dt>clearProcessing( ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Clears the layer's raster processing directives.  Returns the subsequent
+number of  directives, which will equal MS_SUCCESS if the directives have
+been cleared.</dd>
+<dt>close( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Close the underlying layer.</dd>
+<dt>demote( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Moves this layer below the following layer on the same map.</dd>
+<dt>draw( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#imageobj">imageObj</a> image ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Renders this layer into the target image, adding labels to the cache if
+required.  Returns MS_SUCCESS or MS_FAILURE. 
+<strong>TODO</strong>: Does the map need to be the map on which the layer is defined?  
+I suspect so.</dd>
+<dt>drawQuery( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#imageobj">imageObj</a> image ) <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
+<dd>Draw query map for a single layer into the target image.  Returns
+MS_SUCCESS or MS_FAILURE.</dd>
+<dt>executeWFSGetFeature( layer ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Executes a GetFeature request on a WFS layer and returns the
+name of the temporary GML file created. Returns an empty
+string on error.</dd>
+<dt>generateSLD( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Returns an SLD XML string based on all the classes found in the layers.</dd>
+<dt>getClass( int i ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#classobj">classObj</a></span></dt>
+<dd>Fetch the requested class object.  Returns NULL if the class index is
+out of the legal range.   The numclasses field contains the number of
+classes available, and the first class is index 0.</dd>
+<dt>getExtent( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#rectobj">rectObj</a></span></dt>
+<dd>Fetches the extents of the data in the layer.  This normally requires a
+full read pass through the features of the layer and does not work for
+raster layers.</dd>
+<dt>getFilter( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the current filter expression.</dd>
+<dt>getFirstMetaDataKey( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the first key in the metadata hash table.  With
+getNextMetaDataKey( ), provides an opaque iterator over keys.</dd>
+<dt>getItem( int i ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the requested item.  Items are attribute fields, and this method
+returns the item name (field name).   The numitems field contains the 
+number of items available, and the first item is index zero.</dd>
+<dt>getMetaData( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the value at <em>key</em> from the metadata hash table.</dd>
+<dt>getNextMetaDataKey( string lastkey ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the next key in the metadata hash table or NULL if
+<em>lastkey</em> is the last valid key.  If <em>lastkey</em> is NULL, returns the
+first key of the metadata hash table.</dd>
+<dt>getNumFeatures( ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of inline features in a layer.  <strong>TODO</strong>: is this
+really only online features or will it return the number of non-inline
+features on a regular layer?</dd>
+<dt>getProcessing( int index) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the raster processing directive at <em>index</em>.</dd>
+<dt>getNumResults( ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns the number of entries in the query result cache for this layer.</dd>
+<dt>getResult( int i ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#resultcachememberobj">resultCacheMemberObj</a> </span></dt>
+<dd>Fetches the requested query result cache entry, or NULL if the index is
+outside the range of available results.  This method would normally only
+be used after issuing a query operation.</dd>
+<dt>getWMSFeatureInfoURL( <a class="reference" href="#mapobj">mapObj</a> map, int click_x, int click_y, int feature_count, string info_format ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return a WMS GetFeatureInfo URL (works only for WMS layers)
+clickX, clickY is the location of to query in pixel coordinates
+with (0,0) at the top left of the image.
+featureCount is the number of results to return.
+infoFormat is the format the format in which the result should be
+requested.  Depends on remote server's capabilities.  MapServer
+WMS servers support only &quot;MIME&quot; (and should support &quot;GML.1&quot; soon).
+Returns &quot;&quot; and outputs a warning if layer is not a WMS layer 
+or if it is not queriable.</dd>
+</dl>
+<a class="target" id="layerobj-getshape" name="layerobj-getshape"></a><dl>
+<dt>getShape( <a class="reference" href="#shapeobj">shapeObj</a> shape, int tileindex, int shapeindex ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Get a shape from layer data.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> getShape( int shapeindex [, int tileindex=0 ] ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#shapeobj">shapeObj</a></span></dt>
+<dd>Get a shape from layer data using the next generation API.</dd>
+<dt>moveClassDown( int class ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>The class specified by the class index will be moved up into
+the array of layers. Returns MS_SUCCESS or MS_FAILURE.
+ex. moveClassDown(1) will have the effect of moving class 1
+down to postion 2, and the class at position 2 will be moved
+to position 1.</dd>
+<dt>moveClassUp( int class ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>The class specified by the class index will be moved up into
+the array of layers. Returns MS_SUCCESS or MS_FAILURE.
+ex. moveClassUp(1) will have the effect of moving class 1
+up to postion 0, and the class at position 0 will be moved
+to position 1.</dd>
+<dt>open( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Opens the underlying layer.  This is required before operations like
+getShape( ) will work, but is not required before a draw or query call.</dd>
+<dt>promote( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Moves this layer over the preceeding layer on the same map.</dd>
+<dt>queryByAttributes( <a class="reference" href="#mapobj">mapObj</a> map, string qitem, string qstring, int mode ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first">Query layer for shapes that intersect current map extents.  qitem is the 
+item (attribute) on which the query is performed, and qstring is the 
+expression to match.  The query is performed on all the shapes that are 
+part of a CLASS that contains a TEMPLATE value or that match any class in a
+layer that contains a LAYER TEMPLATE value.</p>
+<p class="last">Note that the layer's FILTER/FILTERITEM are ignored by this function.
+Mode is MS_SINGLE or MS_MULTIPLE depending on number of results you want. 
+Returns MS_SUCCESS if shapes were found or MS_FAILURE if nothing
+was found or if some other error happened.</p>
+</dd>
+<dt>queryByFeatures( <a class="reference" href="#mapobj">mapObj</a> map, int slayer ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Perform a query set based on a previous set of results from
+another layer. At present the results MUST be based on a polygon
+layer.
+Returns MS_SUCCESS if shapes were found or MS_FAILURE if nothing
+was found or if some other error happened.</dd>
+<dt>queryByPoint( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#pointobj">pointObj</a> point, int mode, double buffer ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query layer at point location specified in georeferenced map 
+coordinates (i.e. not pixels).  
+The query is performed on all the shapes that are part of a CLASS 
+that contains a TEMPLATE value or that match any class in a
+layer that contains a LAYER TEMPLATE value.
+Mode is MS_SINGLE or MS_MULTIPLE depending on number of results
+you want. 
+Passing buffer &lt;=0 defaults to tolerances set in the map file 
+(in pixels) but you can use a constant buffer (specified in 
+ground units) instead.
+Returns MS_SUCCESS if shapes were found or MS_FAILURE if nothing
+was found or if some other error happened.</dd>
+<dt>queryByRect( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#rectobj">rectObj</a> rect ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query layer using a rectangle specified in georeferenced map 
+coordinates (i.e. not pixels).
+The query is performed on all the shapes that are part of a CLASS 
+that contains a TEMPLATE value or that match any class in a
+layer that contains a LAYER TEMPLATE value.
+Returns MS_SUCCESS if shapes were found or MS_FAILURE if nothing
+was found or if some other error happened.</dd>
+<dt>queryByShape( <a class="reference" href="#mapobj">mapObj</a> map, int slayer ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query layer based on a single shape, the shape has to be a polygon
+at this point. 
+Returns MS_SUCCESS if shapes were found or MS_FAILURE if nothing
+was found or if some other error happened 
+<strong>TODO</strong>: What shape is being used?  Does slayer need to be a layer
+with a single polygon?</dd>
+<dt>removeClass( int index ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Removes the class indicated.  Note that subsequent classes will be
+renumbered by this operation.  The numclasses field contains the number
+of classes available.</dd>
+<dt>removeMetaData( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Delete the metadata hash at <em>key</em>.  Returns MS_SUCCESS or
+MS_FAILURE.</dd>
+<dt>setFilter( string filter ) <span class="classifier-delimiter">:</span> <span class="classifier">int </span></dt>
+<dd>Sets a filter expression similarly to the FILTER expression in a map 
+file.  Returns MS_SUCCESS on success or MS_FAILURE if the expression
+fails to parse.</dd>
+<dt>setMetaData( string key, string value ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Assign <em>value</em> to the metadata hash at <em>key</em>.  Return MS_SUCCESS
+or MS_FAILURE.</dd>
+<dt>setProcessing( string directive ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Adds a new processing directive line to a layer, similar to the PROCESSING
+directive in a map file.  Processing directives supports are specific to
+the layer type and underlying renderer.</dd>
+<dt>setProjection( string proj4 ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the layer projection using a PROJ.4 format projection definition. 
+(ie. &quot;+proj=utm +zone=11 +datum=WGS84&quot;).  Returns MS_SUCCESS or 
+MS_FAILURE.</dd>
+<dt>setWKTProjection( string wkt ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the layer projection using OpenGIS Well Known Text format.  Returns
+MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="legendobj">
+<h2><a class="toc-backref" href="#contents" name="legendobj">legendObj</a></h2>
+<p>legendObj is associated with <a class="reference" href="#mapobj">mapObj</a></p>
+<pre class="literal-block">
++--------+ 0..1     1 +-----+
+| Legend | &lt;--------&gt; | Map |
++--------+            +-----+
+</pre>
+<p>and with <a class="reference" href="#labelobj">labelObj</a>.</p>
+<pre class="literal-block">
++--------+ 1        1 +-------+
+| Legend | ---------&gt; | Label |
++--------+            +-------+
+</pre>
+<div class="section" id="id22">
+<h3><a name="id22">Attributes</a></h3>
+<dl>
+<dt>imagecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Legend background color.</dd>
+<dt>label <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelobj">labelObj</a></span></dt>
+<dd>legend label.</dd>
+<dt>keysizex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Width in pixels of legend keys.</dd>
+<dt>keysizey <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixels.</dd>
+<dt>keyspacingx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Horizontal padding around keys in pixels.</dd>
+<dt>keyspacingy <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Vertical padding.</dd>
+<dt>map <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#mapobj">mapObj</a></span></dt>
+<dd>Reference to parent mapObj.</dd>
+<dt>outlinecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>key outline color.</dd>
+<dt>position <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_UL, MS_UC, MS_UR, MS_LL, MS_LC, or MS_LR.</dd>
+<dt>postlabelcache <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON, MS_OFF, or MS_EMBED.</dd>
+<dt>template <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Path to template file.</dd>
+</dl>
+</div>
+<div class="section" id="id23">
+<h3><a name="id23">Methods</a></h3>
+<p>None</p>
+</div>
+</div>
+<div class="section" id="lineobj">
+<h2><a class="toc-backref" href="#contents" name="lineobj">lineObj</a></h2>
+<p>A lineObj is composed of one or more <a class="reference" href="#pointobj">pointObj</a> instances.</p>
+<pre class="literal-block">
++------+ 0..1  1..* +-------+
+| Line | ---------&gt; | Point |
++------+            +-------+
+</pre>
+<div class="section" id="id24">
+<h3><a name="id24">Attributes</a></h3>
+<dl>
+<dt>numpoints <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of points in the line.</dd>
+</dl>
+</div>
+<div class="section" id="id25">
+<h3><a name="id25">Methods</a></h3>
+<dl>
+<dt>add( <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Add <em>point</em> to the line.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> addPoint( <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Add <em>point</em> to the line.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>get( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#pointobj">pointObj</a></span></dt>
+<dd>Return reference to point at <em>index</em>.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> getPoint( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#pointobj">pointObj</a></span></dt>
+<dd>Return reference to point at <em>index</em>.</dd>
+<dt>project( <a class="reference" href="#projectionobj">projectionObj</a> proj_in, <a class="reference" href="#projectionobj">projectionObj</a> proj_out ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Transform line in place from <em>proj_in</em> to <em>proj_out</em>.  Returns
+MS_SUCCESS or MS_FAILURE.</dd>
+<dt>set( int index, <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the point at <em>index</em> to <em>point</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> setPoint( int index, <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the point at <em>index</em> to <em>point</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="mapobj">
+<h2><a class="toc-backref" href="#contents" name="mapobj">mapObj</a></h2>
+<p>A mapObj is primarily associated with instances of <a class="reference" href="#layerobj">layerObj</a>.</p>
+<pre class="literal-block">
++-----+ 1     0..* +-------+
+| Map | &lt;--------&gt; | Layer |
++-----+            +-------+
+</pre>
+<p>Secondary associations are with <a class="reference" href="#legendobj">legendObj</a>, <a class="reference" href="#scalebarobj">scalebarObj</a>, <a class="reference" href="#referencemapobj">referenceMapObj</a>,
+and <a class="reference" href="#symbolsetobj">symbolSetObj</a>.</p>
+<pre class="literal-block">
++-----+ 1     0..1 +--------------+
+| Map | ---------&gt; | Legend       |
++-----+            | ------------ |
+                   | Scalebar     |
+                   | ------------ |
+                   | ReferenceMap |
+                   + ------------ + 
+                   | SymbolSet    |
+                   +--------------+ 
+</pre>
+<p>and <a class="reference" href="#outputformatobj">outputFormatObj</a>.</p>
+<pre class="literal-block">
++-----+ 1     1..* +--------------+
+| Map | ---------&gt; | OutputFormat |
++-----+            +------------- + 
+</pre>
+<div class="section" id="id26">
+<h3><a name="id26">Attributes</a></h3>
+<dl>
+<dt>cellsize <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Pixel size in map units.</dd>
+<dt>datapattern <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong> not sure this is meaningful for mapscript.</dd>
+<dt>debug <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>extent <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#rectobj">rectObj</a></span></dt>
+<dd>Map's spatial extent.</dd>
+<dt>fontset <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#fontsetobj">fontSetObj</a></span></dt>
+<dd>The map's defined fonts.</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Height in pixels.</dd>
+<dt>imagecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Initial map background color.</dd>
+<dt>imagetype <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>Name of the current output format.</dd>
+<dt>lablecache <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelcacheobj">labelCacheObj</a></span></dt>
+<dd>Map's labelcache.</dd>
+<dt>legend <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#legendobj">legendObj</a></span></dt>
+<dd>Reference to map's legend.</dd>
+<dt>mappath <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Filesystem path of the map's mapfile.</dd>
+<dt>maxsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> ?</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Unique identifier.</dd>
+<dt>numlayers <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of map layers.</dd>
+<dt>numoutputformats <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of output formats.</dd>
+<dt>outputformat <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#outputformatobj">outputFormatObj</a></span></dt>
+<dd>The currently selected output format.</dd>
+<dt>palette <span class="classifier-delimiter">:</span> <span class="classifier">paletteObj</span></dt>
+<dd><strong>TODO</strong> should this be deprecated?</dd>
+<dt>querymap <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#querymapobj">queryMapObj</a></span></dt>
+<dd><strong>TODO</strong> should this be exposed to mapscript?</dd>
+<dt>reference <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#referencemapobj">referenceMapObj</a></span></dt>
+<dd>Reference to reference map.</dd>
+<dt>resolution <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Nominal DPI resolution.  Default is 72.</dd>
+<dt>scale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The nominal map scale.  A value of 25000 means 1:25000 scale.</dd>
+<dt>scalebar <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#scalebarobj">scalebarObj</a></span></dt>
+<dd>Reference to the scale bar.</dd>
+<dt>shapepath <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Base filesystem path to layer data.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_OFF, MS_ON, or MS_DEFAULT.</dd>
+<dt>symbolset <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#symbolsetobj">symbolSetObj</a></span></dt>
+<dd>The map's set of symbols.</dd>
+<dt>templatepattern <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong> not sure this is meaningful for mapscript.</dd>
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_DD, MS_METERS, etc.</dd>
+<dt>web <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#webobj">webObj</a></span></dt>
+<dd>Reference to map's web definitions.</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Width in pixels.</dd>
+</dl>
+</div>
+<div class="section" id="id27">
+<h3><a name="id27">Methods</a></h3>
+<p><strong>TODO</strong></p>
+<dl>
+<dt>appendOutputFormat( <a class="reference" href="#outputformatobj">outputFormatObj</a> format ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Attach <em>format</em> to the map's output format list.  Returns the updated
+number of output formats.</dd>
+<dt>applyConfigOptions( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Apply the defined configuration options set by setConfigOption().</dd>
+<dt>applySLD( string sldxml ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Parse the SLD XML string <em>sldxml</em> and apply to map layers.  Returns
+MS_SUCCESS or MS_FAILURE.</dd>
+<dt>applySLDURL( string sldurl ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Fetch SLD XML from the URL <em>sldurl</em> and apply to map layers.  Returns
+MS_SUCCESS or MS_FAILURE.</dd>
+<dt>clone( ) <span class="classifier-delimiter">:</span> <span class="classifier">mapObj</span></dt>
+<dd><p class="first">Returns a clone of the map.  Presently, the map's fontset and
+symbolset are not copied and users must explicitly set these for the
+cloned map.  See <a class="reference" href="http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=557">http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=557</a>.</p>
+<pre class="last literal-block">
+map_clone = map_orig.clone( )
+map_clone.setFontSet(&quot;absolute/path/to/fontset/file&quot;)
+map_clone.setSymbolSet(&quot;absolute/path/to/symbolset/file&quot;)
+img = map_clone.draw( )
+</pre>
+</dd>
+<dt>draw( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw the map, processing layers according to their defined order and
+status.  Return an imageObj.</dd>
+<dt>drawLabelCache( <a class="reference" href="#imageobj">imageObj</a> image ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw map's label cache on <em>image</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>drawLegend( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw map legend, returning an imageObj.</dd>
+<dt>drawQuery( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw query map, returning an imageObj.</dd>
+<dt>drawReferenceMap( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw reference map, returning an imageObj.</dd>
+<dt>drawScalebar( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Draw scale bar, returning an imageObj.</dd>
+<dt>embedLegend( <a class="reference" href="#imageobj">imageObj</a> image ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Embed map's legend in <em>image</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>embedScalebar( <a class="reference" href="#imageobj">imageObj</a> image ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Embed map's scalebar in <em>image</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>generateSLD( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return SLD XML as a string for map layers.</dd>
+<dt>getConfigOption( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Fetches the value of the requested configuration key if set.  Returns
+NULL if the key is not set.</dd>
+<dt>getFirstMetaDataKey( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the first key in the web.metadata hash table.  With
+getNextMetaDataKey( ), provides an opaque iterator over keys.</dd>
+<dt>getLayer( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#layerobj">layerObj</a></span></dt>
+<dd>Returns a reference to the layer at <em>index</em>.</dd>
+<dt>getLayerByName( string name ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#layerobj">layerObj</a></span></dt>
+<dd>Returns a reference to the named layer.</dd>
+<dt>getLayersDrawingOrder( ) <span class="classifier-delimiter">:</span> <span class="classifier">int*</span></dt>
+<dd>Returns an array of layer indexes in drawing order.</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+Unless the proper typemap is implemented for the module's language
+a user is more likely to get back an unuseable SWIG pointer to the
+integer array.</div>
+<dl>
+<dt>getMetaData( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the value at <em>key</em> from the web.metadata hash table.</dd>
+<dt>getNextMetaDataKey( string lastkey ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the next key in the web.metadata hash table or NULL if
+<em>lastkey</em> is the last valid key.  If <em>lastkey</em> is NULL, returns the
+first key of the metadata hash table.</dd>
+<dt>getOutputFormatByName( string imagetype ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#outputformatobj">outputFormatObj</a></span></dt>
+<dd>Return the output format corresponding to driver name <em>imagetype</em> or
+to format name <em>imagetype</em>.  This works exactly the same as the
+IMAGETYPE directive in a mapfile, is case insensitive and allows 
+an output format to be found either by driver (like 'GD/PNG') or
+name (like 'PNG24').</dd>
+<dt>getProjection( ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Returns the PROJ.4 definition of the map's projection.</dd>
+<dt>getSymbolByName( string name ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Return the index of the named symbol in the map's symbolset.</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+This method is poorly named and too indirect.  It is preferrable to use
+the getSymbolByName method of symbolSetObj, which really does return a
+symbolObj reference, or use the index method of symbolSetObj to get a
+symbol's index number.</div>
+<dl>
+<dt>loadMapContext( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Load map defintion from an OGC XML file on disk.  Returns MS_SUCCESS
+or MS_FAILURE.</dd>
+<dt>moveLayerDown( int layerindex ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Move the layer at <em>layerindex</em> down in the drawing order array, meaning
+that it is drawn later.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>moveLayerUp( int layerindex ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Move the layer at <em>layerindex</em> up in the drawing order array, meaning
+that it is drawn earlier.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>nextLabel( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelcachememberobj">labelCacheMemberObj</a></span></dt>
+<dd>Return the next label from the map's labelcache, allowing iteration
+over labels.</dd>
+<dt>prepareImage( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd>Returns an imageObj initialized to map extents and outputformat.</dd>
+<dt>prepareQuery( ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd><strong>TODO</strong> this function only calculates the scale or am I missing
+something?</dd>
+<dt>processLegendTemplate( string names[], string values[], int numitems ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Process MapServer legend template and return HTML.</dd>
+<dt>processTemplate( int generateimages, string names[], string values[], int numitems ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Process MapServer template and return HTML.</dd>
+<dt>processQueryTemplate( string names[], string values[], int numitems ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Process MapServer query template and return HTML.</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+None of the three template processing methods will be useable unless
+the proper typemaps are implemented in the module for the target
+language.  Currently the typemaps are not implemented.</div>
+<dl>
+<dt>queryByFeatures( int layerindex ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query map layers, result sets contain features that intersect or are
+contained within the features in the result set of the MS_LAYER_POLYGON
+type layer at <em>layerindex</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>queryByPoint( <a class="reference" href="#pointobj">pointObj</a> point, int mode, float buffer ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query map layers, result sets contain one or more features, depending
+on <em>mode</em>, that intersect <em>point</em> within a tolerance <em>buffer</em>.
+Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>queryByRect( <a class="reference" href="#rectobj">rectObj</a> rect ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query map layers, result sets contain features that intersect or are
+contained within <em>rect</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>queryByShape( <a class="reference" href="#shapeobj">shapeObj</a> shape ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Query map layers, result sets contain features that intersect or are
+contained within <em>shape</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>removeLayer( int index ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Remove the layer at <em>index</em>.</dd>
+<dt>removeMetaData( string key ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Delete the web.metadata hash at <em>key</em>.  Returns MS_SUCCESS or
+MS_FAILURE.</dd>
+<dt>removeOutputFormat( string name ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Removes the format named <em>name</em> from the map's output format list.
+Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>save( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save map to disk as a new map file.  Returns MS_SUCCESS
+or MS_FAILURE.</dd>
+<dt>saveMapContext( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save map definition to disk as OGC-compliant XML.  Returns MS_SUCCESS
+or MS_FAILURE.</dd>
+<dt>saveQuery( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save query to disk.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>saveQueryAsGML( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save query to disk.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setConfigOption( string key, string value ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Set the indicated key configuration option to the indicated value.  
+Equivalent to including a CONFIG keyword in a map file.</dd>
+<dt>setExtent( float minx, float miny, float miny, float maxy ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the map extent, returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setFontSet( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Load fonts defined in <em>filename</em> into map fontset.  The existing
+fontset is cleared.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setImageType( string name ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Sets map outputformat to the named format.</dd>
+<dt>setLayersDrawingOrder( int layerindexes[]) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set map layer drawing order.</dd>
+</dl>
+<div class="note">
+<p class="admonition-title">Note</p>
+Unless the proper typemap is implemented for the module's language
+users will not be able to pass arrays or lists to this method and
+it will be unusable.</div>
+<dl>
+<dt>setMetaData( string key, string value ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Assign <em>value</em> to the web.metadata hash at <em>key</em>.  Return MS_SUCCESS
+or MS_FAILURE.</dd>
+<dt>setOutputFormat( <a class="reference" href="#outputformatobj">outputFormatObj</a> format ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Sets map outputformat.</dd>
+<dt>setProjection( string proj4 ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set map projection from PROJ.4 definition string <em>proj4</em>.</dd>
+<dt>setSymbolSet( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Load symbols defined in <em>filename</em> into map symbolset.  The existing
+symbolset is cleared.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setWKTProjection( string wkt ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Sets map projection from OGC definition <em>wkt</em>.</dd>
+<dt>zoomPoint( int zoomfactor, <a class="reference" href="#pointobj">pointObj</a> imgpoint, int width, int height, <a class="reference" href="#rectobj">rectObj</a> extent, <a class="reference" href="#rectobj">rectObj</a> maxextent ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Zoom by <em>zoomfactor</em> to <em>imgpoint</em> in pixel units within the image of
+<em>height</em> and <em>width</em> dimensions and georeferenced <em>extent</em>.  Zooming
+can be constrained to a maximum <em>maxextent</em>.  Returns MS_SUCCESS or
+MS_FAILURE.</dd>
+<dt>zoomRectangle( <a class="reference" href="#rectobj">rectObj</a> imgrect, int width, int height, <a class="reference" href="#rectobj">rectObj</a> extent, <a class="reference" href="#rectobj">rectObj</a> maxextent ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Zoom to a pixel coordinate rectangle in the image of <em>width</em> and <em>height</em>
+dimensions and georeferencing <em>extent</em>.  Zooming can be constrained to a
+maximum <em>maxextent</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>zoomScale( float scale, <a class="reference" href="#pointobj">pointObj</a> imgpoint, int width, int height, <a class="reference" href="#rectobj">rectObj</a> extent, <a class="reference" href="#rectobj">rectObj</a> maxextent) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Like the previous methods, but zooms to the point at a specified scale.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="outputformatobj">
+<h2><a class="toc-backref" href="#contents" name="outputformatobj">outputFormatObj</a></h2>
+<p>An outputFormatObj is associated with a <a class="reference" href="#mapobj">mapObj</a></p>
+<pre class="literal-block">
++--------------+ 1..*     1 +-----+
+| OutputFormat | &lt;--------- | Map |
++--------------+            +-----+ 
+</pre>
+<p>and can also be an attribute of an <a class="reference" href="#imageobj">imageObj</a>.</p>
+<div class="section" id="id28">
+<h3><a name="id28">Attributes</a></h3>
+<p><strong>TODO</strong></p>
+<dl>
+<dt>driver <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>A string such as 'GD/PNG' or 'GDAL/GTiff'.</dd>
+<dt>extension <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Format file extension such as 'png'.</dd>
+<dt>imagemode <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_IMAGEMODE_PC256, MS_IMAGEMODE_RGB, MS_IMAGEMODE_RGBA, 
+MS_IMAGEMODE_INT16, MS_IMAGEMODE_FLOAT32, MS_IMAGEMODE_BYTE, or 
+MS_IMAGEMODE_NULL.</dd>
+<dt>mimetype <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Format mimetype such as 'image/png'.</dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>A unique identifier.</dd>
+<dt>renderer <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> what is renderer for?</dd>
+<dt>transparent <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON or MS_OFF.</dd>
+</dl>
+</div>
+<div class="section" id="id29">
+<h3><a name="id29">Methods</a></h3>
+<a class="target" id="new-outputformatobj" name="new-outputformatobj"></a><dl>
+<dt>new outputFormatObj( string driver [, string name=driver ] ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#outputformatobj">outputFormatObj</a></span></dt>
+<dd>Create new instance.  If <em>name</em> is not provided, the value of <em>driver</em>
+is used as a name.</dd>
+</dl>
+<a class="target" id="getoption" name="getoption"></a><dl>
+<dt>getOption( string key [, string value=&quot;&quot; ] ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the option at <em>key</em> or <em>value</em> if <em>key</em> is not a valid
+hash index.</dd>
+</dl>
+<a class="target" id="setextension" name="setextension"></a><dl>
+<dt>setExtension( string extension ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Set file extension for output format such as 'png' or 'jpg'.  Method 
+could probably be deprecated since the extension attribute is mutable.</dd>
+<dt>setMimetype( string mimetype ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Set mimetype for output format such as 'image/png' or 'image/jpeg'.
+Method could probably be deprecated since the mimetype attribute is
+mutable.</dd>
+<dt>setOption( string key, string value ) <span class="classifier-delimiter">:</span> <span class="classifier">void</span></dt>
+<dd>Set the option at <em>key</em> to <em>value</em>.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="pointobj">
+<h2><a class="toc-backref" href="#contents" name="pointobj">pointObj</a></h2>
+<p>A pointObj instance may be associated with a <a class="reference" href="#lineobj">lineObj</a>.</p>
+<pre class="literal-block">
++-------+ 1..*  0..1 +------+
+| Point | &lt;--------- | Line |
++-------+            +------+
+</pre>
+<div class="section" id="id30">
+<h3><a name="id30">Attributes</a></h3>
+<dl>
+<dt>m <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Measure.  Meaningful only for measured shapefiles.</dd>
+<dt>x <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Easting</dd>
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Northing</dd>
+</dl>
+</div>
+<div class="section" id="id31">
+<h3><a name="id31">Methods</a></h3>
+<a class="target" id="new-pointobj" name="new-pointobj"></a><dl>
+<dt>new pointObj( [ float x=0.0, float y=0.0, float m=2e-38 ] ) <span class="classifier-delimiter">:</span> <span class="classifier">pointObj</span></dt>
+<dd>Create new instance.  Easting, northing, and measure arguments are
+optional.</dd>
+</dl>
+<a class="target" id="distancetopoint" name="distancetopoint"></a><dl>
+<dt>distanceToPoint( pointObj point ) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the distance to <em>point</em>.</dd>
+</dl>
+<a class="target" id="distancetosegment" name="distancetosegment"></a><dl>
+<dt>distanceToSegment( pointObj point1, pointObj point2 ) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the minimum distance to a hypothetical line segment connecting 
+<em>point1</em> and <em>point2</em>.</dd>
+</dl>
+<a class="target" id="distancetoshape" name="distancetoshape"></a><dl>
+<dt>distanceToShape( <a class="reference" href="#shapeobj">shapeObj</a> shape ) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Returns the minimum distance to <em>shape</em>.</dd>
+</dl>
+<a class="target" id="pointobj-draw" name="pointobj-draw"></a><dl>
+<dt>draw( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#layerobj">layerObj</a> layer, <a class="reference" href="#imageobj">imageObj</a> image, int classindex, string text ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw the point using the styles defined by the <em>classindex</em> class of
+<em>layer</em> and labeled with string <em>text</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+<a class="target" id="pointobj-project" name="pointobj-project"></a><dl>
+<dt>project( <a class="reference" href="#projectionobj">projectionObj</a> proj_in, <a class="reference" href="#projectionobj">projectionObj</a> proj_out ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Reproject point from <em>proj_in</em> to <em>proj_out</em>.  Transformation
+is done in place.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setXY( float x, float y [, float m=2e-38 ] ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set spatial coordinate and, optionally, measure values simultaneously.
+The measure will be set only if the value of <em>m</em> is greater than the
+ESRI measure no-data value of 1e-38.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="projectionobj">
+<h2><a class="toc-backref" href="#contents" name="projectionobj">projectionObj</a></h2>
+<p>This class is not really fully implemented yet.  MapServer's Maps and Layers
+have Projection attributes, and these are C projectionObj structures, but are
+not directly exposed by the mapscript module.  Currently we have to do 
+some round-a-bout logic like this</p>
+<pre class="literal-block">
+point.project(projectionObj(mapobj.getProjection( ), 
+              projectionObj(layer.getProjection( ))
+</pre>
+<p>to project a point from map to layer reference system.</p>
+<div class="section" id="id32">
+<h3><a name="id32">Attributes</a></h3>
+<dl>
+<dt>numargs <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of PROJ.4 arguments.</dd>
+</dl>
+</div>
+<div class="section" id="id33">
+<h3><a name="id33">Methods</a></h3>
+<dl>
+<dt>new projectionObj( string proj4 ) <span class="classifier-delimiter">:</span> <span class="classifier">projectionObj</span></dt>
+<dd>Create new instance of projectionObj.  Input parameter <em>proj4</em> is a 
+PROJ.4 definition string such as &quot;init=EPSG:4269&quot;.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="querymapobj">
+<h2><a class="toc-backref" href="#contents" name="querymapobj">queryMapObj</a></h2>
+<p>Has no other existence than as an attribute of a mapObj.</p>
+<div class="section" id="id34">
+<h3><a name="id34">Attributes</a></h3>
+<dl>
+<dt>color <span class="classifier-delimiter">:</span> <span class="classifier">colorObj</span></dt>
+<dd>Foreground color.</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Height in pixels.</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Width in pixels.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_OFF or MS_ON.</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>See map.h for possible styles.</dd>
+</dl>
+</div>
+<div class="section" id="id35">
+<h3><a name="id35">Methods</a></h3>
+<p>None.</p>
+</div>
+</div>
+<div class="section" id="rectobj">
+<h2><a class="toc-backref" href="#contents" name="rectobj">rectObj</a></h2>
+<p>A rectObj may be a lone object or an attribute of another object and has no
+other associations.</p>
+<div class="section" id="id36">
+<h3><a name="id36">Attributes</a></h3>
+<dl>
+<dt>maxx <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Maximum easting</dd>
+<dt>maxy <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Maximum northing</dd>
+<dt>minx <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Minimum easting</dd>
+<dt>miny <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Minimum northing</dd>
+</dl>
+</div>
+<div class="section" id="id37">
+<h3><a name="id37">Methods</a></h3>
+<a class="target" id="new-rectobj" name="new-rectobj"></a><dl>
+<dt>new rectObj( [ float minx=0.0, float miny=0.0, float maxx=0.0, float maxy=0.0 ] ) <span class="classifier-delimiter">:</span> <span class="classifier">rectObj</span></dt>
+<dd>Create new instance.  The four easting and northing arguments
+are optional.</dd>
+</dl>
+<a class="target" id="rectobj-draw" name="rectobj-draw"></a><dl>
+<dt>draw( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#layerobj">layerObj</a> layer, <a class="reference" href="#imageobj">imageObj</a> img, int classindex, string text ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw rectangle into <em>img</em> using style defined by the <em>classindex</em> class
+of <em>layer</em>.  The rectangle is labeled with the string <em>text</em>.  Returns 
+MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+<a class="target" id="rectobj-project" name="rectobj-project"></a><dl>
+<dt>project( <a class="reference" href="#projectionobj">projectionObj</a> proj_in, <a class="reference" href="#projectionobj">projectionObj</a> proj_out ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Reproject rectangle from <em>proj_in</em> to <em>proj_out</em>.  Transformation
+is done in place.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+<a class="target" id="topolygon" name="topolygon"></a><dl>
+<dt>toPolygon( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#shapeobj">shapeObj</a></span></dt>
+<dd>Convert to a polygon of five vertices.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="referencemapobj">
+<h2><a class="toc-backref" href="#contents" name="referencemapobj">referenceMapObj</a></h2>
+<p>A referenceMapObj is associated with <a class="reference" href="#mapobj">mapObj</a>.</p>
+<pre class="literal-block">
++--------------+ 0..1     1 +-----+
+| ReferenceMap | &lt;--------&gt; | Map |
++--------------+            +-----+
+</pre>
+<div class="section" id="id38">
+<h3><a name="id38">Attributes</a></h3>
+<dl>
+<dt>color <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Color of reference box.</dd>
+<dt>extent <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#rectobj">rectObj</a></span></dt>
+<dd>Spatial extent of reference in units of parent map.</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Height of reference map in pixels.</dd>
+<dt>image <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Filename of reference map image.</dd>
+<dt>map <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#mapobj">mapObj</a></span></dt>
+<dd>Reference to parent mapObj.</dd>
+<dt>marker <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Index of a symbol in the map symbol set to use for marker.</dd>
+<dt>markername <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of a symbol.</dd>
+<dt>markersize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Size of marker.</dd>
+<dt>maxboxsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixels.</dd>
+<dt>minboxsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixels.</dd>
+<dt>outlinecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Outline color of reference box.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON or MS_OFF.</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>In pixels.</dd>
+</dl>
+</div>
+<div class="section" id="id39">
+<h3><a name="id39">Methods</a></h3>
+<p>None</p>
+</div>
+</div>
+<div class="section" id="resultcachememberobj">
+<h2><a class="toc-backref" href="#contents" name="resultcachememberobj">resultCacheMemberObj</a></h2>
+<p>A single query result.  Associated with resultCacheObj.</p>
+<pre class="literal-block">
++-------------------+ 0..*     1 +-------------+
+| ResultCacheMember | &lt;--------- | ResultCache |
++-------------------+            +-------------+
+</pre>
+<p>By using several indexes, a resultCacheMemberObj refers to a single layer
+feature.</p>
+<div class="section" id="id40">
+<h3><a name="id40">Attributes</a></h3>
+<dl>
+<dt>classindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>The index of the layer class into which the feature has been classified.</dd>
+<dt>shapeindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Index of the feature within the layer.</dd>
+<dt>tileindex <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Meaningful for tiled layers only, index of the shapefile data tile.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="resultcacheobj">
+<h2><a class="toc-backref" href="#contents" name="resultcacheobj">resultCacheObj</a></h2>
+<p>Set of results of most recent query.  Is always an attribute of a mapObj.
+Associated with resultCacheMemberObj.</p>
+<pre class="literal-block">
++-------------+ 1     0..* +-------------------+
+| ResultCache | ---------&gt; | ResultCacheMember |
++-------------+            +-------------------+
+</pre>
+<div class="section" id="id41">
+<h3><a name="id41">Attributes</a></h3>
+<dl>
+<dt>bounds <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Bounds or spatial extent of query results.</dd>
+<dt>numresults <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>The number of query results.</dd>
+</dl>
+</div>
+<div class="section" id="id42">
+<h3><a name="id42">Methods</a></h3>
+<p>None.</p>
+<div class="note">
+<p class="admonition-title">Note</p>
+In future versions we are likely to explore moving or copying the
+layerObj.getResult method to the resultCacheObj class.</div>
+</div>
+</div>
+<div class="section" id="scalebarobj">
+<h2><a class="toc-backref" href="#contents" name="scalebarobj">scalebarObj</a></h2>
+<p>A scalebarObj is associated with <a class="reference" href="#mapobj">mapObj</a>.</p>
+<pre class="literal-block">
++----------+ 0..1     1 +-----+
+| Scalebar | &lt;--------- | Map |
++----------+            +-----+
+</pre>
+<p>and also with <a class="reference" href="#labelobj">labelObj</a></p>
+<pre class="literal-block">
++----------+ 1        1 +-------+
+| Scalebar | ---------&gt; | Label |
++----------+            +-------+
+</pre>
+<div class="section" id="id43">
+<h3><a name="id43">Attributes</a></h3>
+<dl>
+<dt>backgroundcolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Scalebar background color.</dd>
+<dt>color <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Scalebar foreground color.</dd>
+<dt>imagecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Background color of scalebar.</dd>
+<dt>height <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixels.</dd>
+<dt>intervals <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of intervals.</dd>
+<dt>label <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#labelobj">labelObj</a></span></dt>
+<dd>Scalebar label.</dd>
+<dt>outlinecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Foreground outline color.</dd>
+<dt>position <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_UL, MS_UC, MS_UR, MS_LL, MS_LC, or MS_LR.</dd>
+<dt>postlabelcache <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>status <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_ON, MS_OFF, or MS_EMBED.</dd>
+<dt>style <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>0 or 1.</dd>
+<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>See MS_UNITS in map.h.</dd>
+<dt>width <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixels.</dd>
+</dl>
+</div>
+<div class="section" id="id44">
+<h3><a name="id44">Methods</a></h3>
+<p>None</p>
+</div>
+</div>
+<div class="section" id="shapefileobj">
+<h2><a class="toc-backref" href="#contents" name="shapefileobj">shapefileObj</a></h2>
+<p>Class for read-write access to shapefiles, but not to shapefile attributes.</p>
+<div class="section" id="id45">
+<h3><a name="id45">Attributes</a></h3>
+<p><strong>TODO</strong></p>
+</div>
+<div class="section" id="id46">
+<h3><a name="id46">Methods</a></h3>
+<p><strong>TODO</strong></p>
+</div>
+</div>
+<div class="section" id="shapeobj">
+<h2><a class="toc-backref" href="#contents" name="shapeobj">shapeObj</a></h2>
+<p>Each feature of a layer's data is a shapeObj.  Each part of the shape is a
+closed <a class="reference" href="#lineobj">lineObj</a>.</p>
+<pre class="literal-block">
++-------+ 1    1..* +------+
+| Shape | --------&gt; | Line |
++-------+           +------+
+</pre>
+<div class="section" id="id47">
+<h3><a name="id47">Attributes</a></h3>
+<dl>
+<dt>bounds <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#rectobj">rectObj</a></span></dt>
+<dd>Bounding box of shape.</dd>
+<dt>classindex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The class index for features of a classified layer.</dd>
+<dt>index <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Feature index within the layer.</dd>
+<dt>numlines <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of parts.</dd>
+<dt>numvalues <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of shape attributes.</dd>
+<dt>text <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Shape annotation.</dd>
+<dt>tileindex <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Index of tiled file for tileindexed layers.</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_SHAPE_POINT, MS_SHAPE_LINE, MS_SHAPE_POLYGON, or MS_SHAPE_NULL.</dd>
+</dl>
+</div>
+<div class="section" id="id48">
+<h3><a name="id48">Methods</a></h3>
+<a class="target" id="new-shapeobj" name="new-shapeobj"></a><dl>
+<dt>new shapeObj( int type ) <span class="classifier-delimiter">:</span> <span class="classifier">shapeObj</span></dt>
+<dd>Return a new shapeObj of the specified <em>type</em>.  See the type attribute
+above.</dd>
+</dl>
+<a class="target" id="shapeobj-add" name="shapeobj-add"></a><dl>
+<dt>add( <a class="reference" href="#lineobj">lineObj</a> line ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Add <em>line</em> (i.e. a part) to the shape.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> addLine( <a class="reference" href="#lineobj">lineObj</a> line ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Add <em>line</em> (i.e. a part) to the shape.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+<a class="target" id="contains" name="contains"></a><dl>
+<dt>contains( <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns MS_TRUE if the point is inside the shape, MS_FALSE otherwise.</dd>
+<dt>copy( shapeObj shape_copy ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Copy the shape to <em>shape_copy</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> copy( ) <span class="classifier-delimiter">:</span> <span class="classifier">shapeObj</span></dt>
+<dd>Return a copy of the shape.</dd>
+<dt>distanceToPoint( <a class="reference" href="#pointobj">pointObj</a> point ) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Return distance to <em>point</em>.</dd>
+<dt>distanceToShape( shapeObj shape ) <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Return the minimum distance to <em>shape</em>.</dd>
+</dl>
+<a class="target" id="shapeobj-draw" name="shapeobj-draw"></a><dl>
+<dt>draw( <a class="reference" href="#mapobj">mapObj</a> map, <a class="reference" href="#layerobj">layerObj</a> layer, <a class="reference" href="#imageobj">imageObj</a> img ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draws the individual shape using layer.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+<a class="target" id="shapeobj-get" name="shapeobj-get"></a><dl>
+<dt>get( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#lineobj">lineObj</a></span></dt>
+<dd>Returns a reference to part at <em>index</em>.  Reference is valid
+only during the life of the shapeObj.</dd>
+<dt><strong>NEXT_GENERATION_API</strong> getLine( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#lineobj">lineObj</a></span></dt>
+<dd>Returns a reference to part at <em>index</em>.  Reference is valid
+only during the life of the shapeObj.</dd>
+</dl>
+<a class="target" id="getvalue" name="getvalue"></a><dl>
+<dt>getValue( int i ) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Return the shape attribute at index <em>i</em>.</dd>
+</dl>
+<a class="target" id="shapeobj-intersects" name="shapeobj-intersects"></a><dl>
+<dt>intersects( shapeObj shape ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Returns MS_TRUE if the two shapes intersect, MS_FALSE otherwise.</dd>
+</dl>
+<a class="target" id="shapeobj-project" name="shapeobj-project"></a><dl>
+<dt>project( <a class="reference" href="#projectionobj">projectionObj</a> proj_in, <a class="reference" href="#projectionobj">projectionObj</a> proj_out ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Reproject shape from <em>proj_in</em> to <em>proj_out</em>.  Transformation
+is done in place.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+<dt>setBounds <span class="classifier-delimiter">:</span> <span class="classifier">void    </span></dt>
+<dd><p class="first">Must be called to calculate new bounding box after new parts have been
+added.</p>
+<p class="last"><strong>TODO</strong>: should return int and set msSetError.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="styleobj">
+<h2><a class="toc-backref" href="#contents" name="styleobj">styleObj</a></h2>
+<p>An instance of styleObj is associated with one instance of classObj <a class="footnote-reference" href="#id59" id="id49" name="id49"><sup>2</sup></a>.</p>
+<pre class="literal-block">
++-------+ 0..*    1 +-------+
+| Style | &lt;-------- | Class |
++-------+           +-------+
+</pre>
+<p>Support for multiple class styles is a new feature in the current unstable
+(4.1) Mapscript and in the next stable (4.2) release.  The initial feature
+request and notes are archived at 
+<a class="reference" href="http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=548">http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=548</a>.</p>
+<p>An instance of styleObj can exist outside of a classObj container and
+be explicitly inserted into the classObj for use in mapping.</p>
+<pre class="literal-block">
+new_style = new styleObj( )
+the_class.insertStyle(new_style)
+</pre>
+<p>It is important to understand that insertStyle() inserts a <strong>copy</strong> of the
+styleObj instance, not a reference to the instance itself.</p>
+<p>The more standard use case</p>
+<pre class="literal-block">
+new_style = new styleObj(the_class)
+</pre>
+<p>remains supported.  These will be the only ways to access the styles of
+a class.  Programmers should no longer directly access the styles attribute.</p>
+<div class="section" id="id50">
+<h3><a name="id50">Attributes</a></h3>
+<dl>
+<dt>backgroundcolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Background pen color.</dd>
+<dt>color <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Foreground or fill pen color.</dd>
+<dt>minsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Minimum pen or symbol width for scaling styles.</dd>
+<dt>maxsize <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Maximum pen or symbol width for scaling.</dd>
+<dt>offsetx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw with pen or symbol offset from map data.</dd>
+<dt>offsety <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Draw with pen or symbol offset from map data.</dd>
+<dt>outlinecolor <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#colorobj">colorObj</a></span></dt>
+<dd>Outline pen color.</dd>
+<dt>size <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Pixel width of the style's pen or symbol.</dd>
+<dt>symbol <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The index within the map symbolset of the style's symbol.</dd>
+<dt>symbolname <span class="classifier-delimiter">:</span> <span class="classifier">string immutable</span></dt>
+<dd>Name of the style's symbol.</dd>
+</dl>
+</div>
+<div class="section" id="id51">
+<h3><a name="id51">Methods</a></h3>
+<a class="target" id="new-styleobj" name="new-styleobj"></a><dl>
+<dt>new styleObj( [ <a class="reference" href="#classobj">classObj</a> parent_class ] ) <span class="classifier-delimiter">:</span> <span class="classifier">styleObj</span></dt>
+<dd>Returns new default style Obj instance.  The <em>parent_class</em> is
+optional.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="symbolobj">
+<h2><a class="toc-backref" href="#contents" name="symbolobj">symbolObj</a></h2>
+<p>A symbolObj is associated with one <a class="reference" href="#symbolsetobj">symbolSetObj</a>.</p>
+<pre class="literal-block">
++--------+ 0..*    1 +-----------+
+| Symbol | &lt;-------- | SymbolSet |
++--------+           +-----------+
+</pre>
+<p>A <a class="reference" href="#styleobj">styleObj</a> will often refer to a symbolObj by name or index, but this is
+not really an object association, is it?</p>
+<div class="section" id="id52">
+<h3><a name="id52">Attributes</a></h3>
+<dl>
+<dt>antialias <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>character <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>For TrueType symbols.</dd>
+<dt>filled <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_TRUE or MS_FALSE.</dd>
+<dt>font <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>For TrueType symbols.</dd>
+<dt>gap <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> what is this?</dd>
+<dt>imagepath <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Path to pixmap file.</dd>
+<dt>linecap <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> unsure about the cartoline attributes.</dd>
+<dt>linejoin <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>linejoinmaxsize <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Symbol name</dd>
+<dt>numpoints <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of points of a vector symbol.</dd>
+<dt>position <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> ?</dd>
+<dt>sizex <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><strong>TODO</strong> what is this?</dd>
+<dt>sizey <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><strong>TODO</strong> what is this?</dd>
+<dt>stylelength <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of intervals</dd>
+<dt>transparent <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> what is this?</dd>
+<dt>transparentcolor <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><strong>TODO</strong> is this a derelict attribute?</dd>
+<dt>type <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>MS_SYMBOL_SIMPLE, MS_SYMBOL_VECTOR, MS_SYMBOL_ELLIPSE, MS_SYMBOL_PIXMAP,
+MS_SYMBOL_TRUETYPE, or MS_SYMBOL_CARTOLINE.</dd>
+</dl>
+</div>
+<div class="section" id="id53">
+<h3><a name="id53">Methods</a></h3>
+<p><strong>TODO</strong></p>
+<dl>
+<dt>new symbolObj( string symbolname [, string imagefile ] ) <span class="classifier-delimiter">:</span> <span class="classifier">symbolObj</span></dt>
+<dd>Create new default symbol named <em>name</em>.  If <em>imagefile</em> is specified,
+then the symbol will be of type MS_SYMBOL_PIXMAP.</dd>
+<dt>getPoints( ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#lineobj">lineObj</a></span></dt>
+<dd>Returns the symbol points as a lineObj.</dd>
+<dt>setPoints( <a class="reference" href="#lineobj">lineObj</a> line ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Sets the symbol points from the points of <em>line</em>.  Returns the updated
+number of points.</dd>
+<dt>setStyle( int index, int value ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Set the style at <em>index</em> to <em>value</em>.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="symbolsetobj">
+<h2><a class="toc-backref" href="#contents" name="symbolsetobj">symbolSetObj</a></h2>
+<p>A symbolSetObj is an attribute of a <a class="reference" href="#mapobj">mapObj</a> and is associated with instances
+of <a class="reference" href="#symbolobj">symbolObj</a>.</p>
+<pre class="literal-block">
++-----------+ 1    0..* +--------+
+| SymbolSet | --------&gt; | Symbol |
++-----------+           +--------+
+</pre>
+<div class="section" id="id54">
+<h3><a name="id54">Attributes</a></h3>
+<dl>
+<dt>numsymbols <span class="classifier-delimiter">:</span> <span class="classifier">int immutable</span></dt>
+<dd>Number of symbols in the set.</dd>
+</dl>
+</div>
+<div class="section" id="id55">
+<h3><a name="id55">Methods</a></h3>
+<dl>
+<dt>new symbolSetObj( [ string symbolfile ] ) <span class="classifier-delimiter">:</span> <span class="classifier">symbolSetObj</span></dt>
+<dd>Create new instance.  If <em>symbolfile</em> is specified, symbols will be 
+loaded from the file.</dd>
+<dt>appendSymbol( <a class="reference" href="#symbolobj">symbolObj</a> symbol ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Add a copy of <em>symbol</em> to the symbolset and return its index.</dd>
+<dt>getSymbol( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#symbolobj">symbolObj</a></span></dt>
+<dd>Returns a reference to the symbol at <em>index</em>.</dd>
+<dt>getSymbolByName( string name ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#symbolobj">symbolObj</a></span></dt>
+<dd>Returns a reference to the symbol named <em>name</em>.</dd>
+<dt>index( string name ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Return the index of the symbol named <em>name</em> or -1 in the case that
+no such symbol is found.</dd>
+<dt>removeSymbol( int index ) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#symbolobj">symbolObj</a></span></dt>
+<dd>Remove the symbol at <em>index</em> and return a copy of the symbol.</dd>
+<dt>save( string filename ) <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Save symbol set to a file.  Returns MS_SUCCESS or MS_FAILURE.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="webobj">
+<h2><a class="toc-backref" href="#contents" name="webobj">webObj</a></h2>
+<p>Has no other existence than as an attribute of a mapObj.  Serves as a 
+container for various run-time web application definitions like temporary
+file paths, template paths, etc.</p>
+<div class="section" id="id56">
+<h3><a name="id56">Attributes</a></h3>
+<dl>
+<dt>empty <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>error <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>extent <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#rectobj">rectObj</a></span></dt>
+<dd>Clipping extent.</dd>
+<dt>footer <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Path to footer document.</dd>
+<dt>header <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Path to header document.</dd>
+<dt>imagepath <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Filesystem path to temporary image location.</dd>
+<dt>imageurl <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>URL to temporary image location.</dd>
+<dt>log <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>map <span class="classifier-delimiter">:</span> <span class="classifier">mapObj</span></dt>
+<dd>Reference to parent mapObj.</dd>
+<dt>maxscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Maximum map scale.</dd>
+<dt>maxtemplate <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>minscale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Minimum map scale.</dd>
+<dt>mintemplate <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>queryformat <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><strong>TODO</strong></dd>
+<dt>template <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Path to template document.</dd>
+</dl>
+</div>
+<div class="section" id="id57">
+<h3><a name="id57">Methods</a></h3>
+<p>None.</p>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="mapscript.txt">View document source</a>.
+Generated on: 2004-05-25 17:22 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>
+</body>
+</html>
