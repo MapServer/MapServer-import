@@ -3,7 +3,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://mapserver.gis.umn.edu/mdp/docbkx412/docbookx.dtd">
 <article>
 	<articleinfo>
-		<title>MapFile Reference - MapServer 3.5</title>
+		<title>MapFile Reference - MapServer 3.6</title>
 		<author>
 			<firstname>Jean-Fran&ccedil;ois</firstname>
 			<surname>Doyon</surname>
@@ -19,7 +19,7 @@
 		</author>
 		<abstract>
 			<para>
-    			This document is a reference to the MapFile syntax for MapServer version 3.5.
+    			This document is a reference to the MapFile syntax for MapServer version 3.6.
    			</para>
 			<para>Last Updated:  05-21-2002</para>
 		</abstract>
