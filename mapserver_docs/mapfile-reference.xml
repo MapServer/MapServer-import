@@ -369,9 +369,9 @@
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>CONNECTIONTYPE [local|sde|ogr|postgis|oraclespatial]</term>
+					<term>CONNECTIONTYPE [local|sde|ogr|postgis|oraclespatial|wms]</term>
 					<listitem>
-						<para>Type of connection. Default is local.</para>
+						<para>Type of connection. Default is local. See additional documentation for any other type.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
