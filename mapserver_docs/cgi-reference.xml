@@ -287,9 +287,15 @@
           <term><literal>MODE [value] </literal></term>
           <listitem>
             <para> Mode of operation. The following options are
-              supported (note that all of the query modes also support
+              supported.
+			</para>
+			<para>Note that all of the query modes also support
               map-only modes, e.g. ITEMQUERYMAP, which for brevity are
-              not all listed):</para>
+              not all listed. Also these map-only modes require a 
+			  <ulink url="mapfile-reference.html#template">TEMPLATE</ulink>
+			  to be defined in the 
+			  <ulink url="mapfile-reference.html">mapfile</ulink>.</para>
+			  
             <variablelist>
               <varlistentry>
                 <term><literal>BROWSE </literal></term>
@@ -603,7 +609,7 @@
           <term><literal>ZOOMSIZE [number] </literal></term>
           <listitem>
             <para> Absolute magnitude of a zoom. Used with ZOOMDIR.</para>
-            <para> ZOOMDIR is limited to MAXZOOM compiled into the 
+            <para> ZOOMSIZE is limited to MAXZOOM compiled into the 
       MapServer (25 by default).</para>
           </listitem>
         </varlistentry>
