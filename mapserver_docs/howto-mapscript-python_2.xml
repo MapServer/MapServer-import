@@ -1,0 +1,1371 @@
+<?xml version='1.0' standalone='no'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://mapserver.gis.umn.edu/mdp/docbkx412/docbookx.dtd" >
+<article>
+
+<articleinfo>
+ <!-- insert title here, include the word HOWTO -->
+  <title>The Python/MapScript HOWTO</title>
+
+  <author>
+     <firstname>Michael</firstname>
+     <surname>Schulz</surname>
+     <affiliation>
+        <orgname>in medias res GmbH</orgname>
+         <orgdiv></orgdiv>
+        <address>
+            <email>mschulz@webgis.de</email>
+        </address>
+     </affiliation>
+  </author>
+
+  <author>
+     <firstname>Grit</firstname>
+     <surname>Schuster</surname>
+     <affiliation>
+        <orgname>in medias res GmbH</orgname>
+         <orgdiv></orgdiv>
+        <address>
+            <email>gschuster@webgis.de</email>
+        </address>
+     </affiliation>
+  </author>
+
+
+<!-- TRANSLATORS to other languages will be specified in the "contrib" tag -->
+
+  <abstract>  <!-- a short description of the contents of the doc -->
+    <para>
+    This document tries to give an overview of the Python/MapScript Objects and their syntax. It is a start of the documentation for Python/MapScript. Information given here refers to MapServer version 3.6.
+    <emphasis>
+    A basic knowledge of mapserver, map definition files, Python and HTML is recommended.
+    </emphasis>
+    Example lines are in plain roman style.  
+    </para> 
+
+    <para>Last Updated:  24-2-2003</para>
+  </abstract>
+
+</articleinfo>
+
+
+<sect1 id='intro'>
+ <title>Introduction</title>
+
+  <para>
+   <emphasis>
+    In this HOWTO you will find information and examples how to install and use Python/MapScript. Since no documentation
+previously existed this document will surely not cover all topics, it should be regarded as a starting point for people
+who want to work with Python/MapScript.
+   </emphasis>
+  </para>
+
+  <para>
+    This document assumes some previous knowledge or experience, especially with
+    the following:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        Familiarity with fundamental aspects of managing the
+        MapServer software and the web server.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Familiarity with the scripting language <ulink url='http://www.python.org'>Python</ulink>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        The MapServer/MapScript software is installed and functioning on a web server.
+      </para>
+    </listitem>
+
+  </itemizedlist>
+
+</sect1>
+
+<sect1 id='installation'>
+ <title>Installation</title>
+  <para>If you're not experienced with Python, you should read the
+tutorial available in <ulink url='http://www.python.org'>http://www.python.org</ulink> or another equivalent tutorial, since the language has some tricks that are not quite intuitive, and that should remove some of the pain of getting the extension to work. The following instructions are Linux/Unix specific.</para>
+
+   <sect2 id='pre'>
+    <title>Prerequisites</title>
+     <itemizedlist>
+      <listitem>You have to have build <ulink url='http://mapserver.gis.umn.edu/doc36/unix-install-howto.html'>MapServer</ulink> first. Refer to the proper documentation for that.</listitem>
+      <listitem>Also, Python has to be installed. You can obtain the newest releases <ulink url='http://www.python.org/download'>here</ulink>. However, while writing this documentation we used Python 2.1.2.</listitem>
+      <listitem>Additionally you will need SWIG, available in most Linux distributions, or from <ulink url='http://www.swig.org'>http://www.swig.org</ulink>.</listitem>
+    </itemizedlist>
+   </sect2>
+ 
+   <sect2 id='build'>
+    <title>Building the extension</title>
+     <para>There are two ways to build the extension. If you like tasks and challenges go and swig,
+compile and install all the stuff by hand. Another way is to use an install script that Norman Vine
+made, which makes things much easier. It is available from <ulink url='http://www.vso.cape.com/~nhv/files/python/mapscript/setup.py.'>http://www.vso.cape.com/~nhv/files/python/mapscript/setup.py</ulink>. Copy this file to <filename>$MAPSERV_HOME/mapscript/python</filename>.
+     <para>Changes on setup.py 
+    
+     activate swig_cmd "-shadow" and disable "-DWIN32"
+     enable all needed macros and libraries
+     </para>
+     </para>
+     <para>In the same directory you will find a link to <filename>mapscript.i</filename>. This
+is the interface file for SWIG. Make sure that this file has the section
+<filename>SWIGPYTHON</filename> defined as follows:
+     <programlisting>
+#ifdef SWIGPYTHON
+// For Python, errors reported via the ms_error structure are translated
+// into RuntimeError exceptions. (Chris Chamberlin &lt;cdc@aracnet.com>)
+
+%{
+  static void _raise_ms_exception(void) {
+    char errbuf[256];
+    errorObj *ms_error = msGetErrorObj();
+    snprintf(errbuf, 255, "%s: %s %s\n", ms_error->routine, msGetErrorString(ms_error->code), ms_error->message);
+    _SWIG_exception(SWIG_RuntimeError, errbuf);
+  }
+
+  #define raise_ms_exception() { _raise_ms_exception(); return NULL; }
+%}
+
+%except {
+  $function
+    errorObj *ms_error = msGetErrorObj();
+    if ( (ms_error->code != MS_NOERR) &amp;&amp; (ms_error->code != -1) )
+      raise_ms_exception();
+}
+#endif // SWIGPYTHON
+     </programlisting>
+Now you should edit the <filename>setup.py</filename> script and make some changes to reflect your
+personal system settings (libraries, paths, etc.). First of all you need to
+     <itemizedlist>
+      <listitem>remove the line in the swig_cmd variable that says "-opt" (if you have a new version of
+SWIG - at least, in 1.3.X it doesn't work if it's present), </listitem>
+      <listitem>change the line that says "-DPYTHON" to "-DSWIGPYTHON", in the new releases of SWIG</listitem>
+     </itemizedlist>
+and then adjust some parameters and paths:
+    <itemizedlist>
+      <listitem>adjust path to GD-library (gd_dir), leave ms_dir as it is, adjust local_dir to your
+system (we used "/usr/local") </listitem>
+      <listitem>comment or uncomment the lines containing the needed libraries_dirs and include_dirs</listitem>
+      <listitem>check the libraries dictionary wether all lib symbols you need are existing.</listitem>
+    </itemizedlist>
+Now you can run the setup.py script invoking it with <filename>python setup.py install</filename>. It
+will print out several warnings but don't bother about it. When everything goes smooth the
+Python/Mapscript module should now be compiled and ready to use. Check it with:
+    <programlisting>
+python
+Python 2.1.2 (#11, Jul 11 2002, 15:03:40) 
+[GCC 2.95.2 19991024 (release)] on linux2
+Type "copyright", "credits" or "license" for more information.
+>>> import mapscript
+>>> mapscript.MS_VERSION
+'3.6.1'
+    </programlisting>
+If setup.py or python complain about unresolved symbols get some help <ulink url='http://mapserver.gis.umn.edu/cgi-bin/wiki.pl?PythonMapScript'>here</ulink>. 
+    </para>
+   </sect2>
+</sect1>
+
+<sect1 id='reference'>
+ <title>List of Classes and Functions</title>
+   <sect2><title id='info'>Information</title>
+    <para>Access to the mapserver API is provided largely through a series of
+    classes. These will be resumed in the following chapter. 
+    It is not intended to give a detailed description of the object's methods and attributes. 
+    Therefore, please have a look at <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html'>
+     Perl MapScript Reference</ulink>. 
+    Examples with explicit comments are used to illustrate the implementation 
+    of Python/Mapscript classes an functions.
+    For using the Python/Mapscript module you have to import it like conventional Python modules:</para>
+   </sect2>
+    <programlisting>
+    >>> import mapscript
+<emphasis>or:</emphasis>
+    >>> from mapscript import *
+    </programlisting><para>General information about the usage of modules can be found at the        
+   <ulink url='http://www.python.org/doc/current/tut/node8.html'>Python
+Tutorial section on modules</ulink>!
+    </para>
+   <sect2 id='constants'><title>Constants</title>
+   <para>Many mapfile parameters take constant values, according to the
+listing in
+   <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html'>Perl MapScript Reference   </ulink>.
+   <para><emphasis>Example:</emphasis></para>
+   <programlisting>
+   >>> from mapscript import *                  # 1)
+   >>> myMap = mapObj('/map/data/mapfile.map')  # 2)
+   >>> myMap.units = MS_INCHES                  # 3)
+   >>> height = getattr(myMap, 'height')        # 4)
+   >>> setattr(myMap.web, 'imagepath', '/tmp/') # 5)
+
+   1): Import mapscript module.
+   2): Create a map object of the mapfile 'mapfile.map'  
+   3): Assign the constant value 'MS_INCHES' to the map object's attribute 'units'.
+   4): Using the python function getattr(object,name) to access the attribute 'height' of 'myMap'.
+   5): Using python function setattr(object, name, value) for assigning a value to the object's attribute.
+   
+   
+   </programlisting>
+   </para>
+  </sect2>
+   
+  <sect2 id='mapobj'>
+   <title>mapObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title> 
+      <programlisting>
+   <emphasis>mapObj</emphasis>  mapObj(<emphasis>string</emphasis> mapfilename)
+   """Open a specified map definition file."""        
+   </programlisting>
+   <para><emphasis>Example:</emphasis>
+   <para> 
+   <programlisting>
+   >>> myMap = mapObj('demo.map') # 1)
+      
+   1): If the filename is undefined, an empty mapObj is created and initialized.           
+   </programlisting>
+   </para>
+   </para>
+    </sect3>
+          
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+   <para>The map object's attributes are conform to "members" performed
+   in the 'mapObj' section of <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#mapobj'> Perl MapScript Reference</ulink>.
+   </para>
+   <para><emphasis>Example:</emphasis>
+   <programlisting>
+   >>> minExtX = myMap.extent.minx                        # 1)  
+   >>> myMap.interlace = MS_TRUE                          # 2)
+   >>> myMap.legend.keysizex = 18                         # 3)
+   >>> myMap.legend.label.font = "conhobold"              # 4)
+   >>> num_layers = myMap.numlayers                       # 5)
+   >>> myMap.scalebar.color = myMap.addColor(255,255,255) # 6)
+   >>> myMap.scalebar.width = 50                          # 7)
+
+   1): The attribute 'extent' returns a rectObj; the attribute 'minx' of a recObj returns a double value
+       for the left x-coordinate of a rectangle; this  value is assigned to a variable named minExtX.
+   2): mapObj's attribute 'interlace' is set on MS_TRUE.
+   3): The attribute 'keysize' of myMap's legend is set to 18.
+   4): The attribute font of the legend's label is set to an other font type.
+   5): The 'numlayers'-attribute of 'myMap' returns an int value, which is assigned to a variable.
+   6): The attribute 'color' (int) of myMap's scalebar is set to the color, which is added to the
+       current map object by using the method addColor(r,g,b).
+   7): The attribute 'witdh' of myMap's scalebar is set to 50.
+   </programlisting>
+   </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+   <para>Methods of the mapObj class are listed in the <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#mapobj'> Perl MapScript Reference</ulink>.
+   </para>
+   <para><emphasis>Example:</emphasis>
+   <programlisting>
+             
+   from mapscript import*
+   myMap = mapObj('/path/to/mapfile/map.map')   # 1)
+   img = myMap.draw()                           # 2)
+   while myMap.nextLabel():                     # 3)
+     lcmo = myMap.nextLabel()
+     if lcmo.status:                            # 4)
+       print "lcmo: %s"%(lcmo.string)
+       shp = lcmo.poly
+       for i in range (shp.numlines):           # 5)
+         print i
+         part = shp.get(i)
+         print "nr-lines: %d"%(i)
+         for j in range (part.numpoints):
+           n_point = part.get(j)
+           print "nr: %s  x: %s / y: %s"%(j,n_point.x,n_point.y)
+           
+  1): Generating a new mapObj.         
+  2): Creating an imgObj by using the mapObject's method draw(). imgObj is required create labels.
+  3): While iterating the labelcache a labelCacheMemberObj is created for every label layer.
+  4): If the status of the labelCacheMemberObj is 1, the particular label's name is printed and a shapeObj is 
+      created using the 'poly'-attribute of labelCacheMemberObj.
+  5): This Iteration prints the point of the label borders for the number of lines of the shape 'shp'.
+  </programlisting>
+   </para>
+    </sect3>
+  </sect2>
+  <sect2 id='layerobj'>
+   <title>layerObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>layerObj</emphasis>  layerObj(<emphasis>mapObj</emphasis>)
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myLayer = layerObj(myMap) # 1)
+
+  1): Normally you obtain layerObj from an existing layer within a map, however you can create a
+      new layer.
+  </programlisting>
+  </para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#layerobj'> Perl MapScript Reference:  layerObj members</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+       <programlisting>
+  >>> num_classes = myLayer.numclasses   # 1)
+  >>> result_cache = myLayer.resultcache # 2)
+
+  1): Attribute numclasses returns the number of classes of 'myLayer'.
+  2): Resultcache returns a resultCacheObj, which holds the results of a query against this
+      layer.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#layerobj'> Perl MapScript Reference:  layerObj methods</ulink>.
+  </para>
+  <para>Note that the 'queryByAttributes' method is used like this: <emphasis>   int</emphasis> queryByAttributes(mapObj map, char qitem, char qstring, int mode)
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> qryresult = myLayer.queryByPoint(myMap,n_point,MS_SINGLE,0) # 1)
+  >>> resultmember = myLayer.getResult(0)                         # 2)
+  >>> myLayer.open(myMap.shapepath)                               # 3)
+  0
+  >>> myShape = shapeObj(-1)                                      # 4)
+  >>> myLayer.getShape(myShape,-1,0)                              # 5)
+  0
+  >>> myShape.bounds.minx                                         # 6)
+  3293309.60720301
+  >>> myLayer.close()                                             # 7)
+
+  1): QueryByPoint(mapObj,pointObj,integer mode, double buffer)queries a single layer using a
+      point, returns integer.
+  2): GetResult(integer member)Retrieves the nth member of the result cache created by the
+      previous query, ie. queryByPoint, returns resultCacheMemberObj.
+  3): Allows access to the layer's shapefile. The layerObj must be opened for using its deposited shape data.
+      layerObj.open(character path); returns integer 0 on success, else 1 is returned.
+  4): Generates an empty shapeObj.
+  5): Gets myLayer's shape and puts it into 'myShape'; returns integer 0 on success, else 1 is returned.
+  6): Returns attribute bounds.minx of 'myShape'
+  7): After using the shape file must be closed.
+  </programlisting>
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='class'>
+   <title>classObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>classObj</emphasis>  classObj(<emphasis>layerObj</emphasis>)
+  """Creates a new class object from the given layerObj and returns a classObj."""
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myClass = classObj(myLayer)                 # 1)
+  >>> myClass                                     # 2)
+      C classObj instance at _e42e1708_p_classObj>
+
+  1): Create a new classObj, by a given layerObj.
+  2): Print the new instance on the python shell.
+  </programlisting>
+  </para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#classobj'> Perl MapScript Reference:  classObj members</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> myLayer = myMap.getLayer(1)   # 1)
+  >>> myClass = myLayer.getClass(0) # 2)
+  >>> myClass.status = 1            # 3)
+
+  1): Create a layerObj of one layer, given by the layer-index
+      of the layers of the current map object.
+  2): Create a classObj of one class, given by the class-index
+      of the classes of the current layer object.
+  3): Assign an int value to the attribute 'status' of the class
+     object 'myClass'; the status of 'MyClass' will than be MS_ON.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#classobj'> Perl MapScript Reference:  classObj methods</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> myClass.setExpression('([AREA] > 500)')                  # 1)
+      0
+  >>> myIcon = myClass.createLegendIcon(myMap, myLayer,  8, 8) # 2)
+
+  1): Set an expression on the current classObj, return value is integer.
+  2): Create a legend icon for the current classObj, return value is image.
+  </programlisting>
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='image'>
+   <title>imageObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>imageObj</emphasis>  imageObj(<emphasis>width, height</emphasis>)
+  """Create a new image object with the parameters Pixel width and height."""
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> img = imageObj(500,500) # 1)
+
+  1): Creates the new image object 'img'.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#imageobj'> Perl MapScript Reference: imageObj members</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> img.imageurl = '/mapserver/tmp' # 1)
+
+  1): Set the base URL for IMAGEPATH. This is the URL that will take the web browser
+      to IMAGEPATH to get the images.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#imageobj'> Perl MapScript Reference: imageObj methods</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> img.saveImage('/path/to/out.png',MS_PNG,0,0,0)
+
+  1): <emphasis>void</emphasis> saveImage(character filename, type, transparent, interlace,
+      quality)
+  </programlisting>
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='label'>
+   <title>labelObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>labelObj</emphasis>  labelObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myLabel = labelObj() # 1)
+
+  1): Create an instance of label object.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelobj'> Perl MapScript Reference: labelObj members</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> l.size = 8 # 1)
+
+  1): Set new value for <emphasis>int</emphasis> label.size.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>labelObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='labelcache'>
+   <title>labelCacheObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>labelCacheObj</emphasis>  labelCacheObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myLabelCache = labelCacheObj() # 1)
+
+  1): Create an instance of labelCacheObj.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelcacheobj'> Perl MapScript Reference: labelCacheObj members</ulink>.
+  </para>
+  <para><emphasis>Example:</emphasis>
+  <programlisting>
+  >>> num_label myLabelCache.numlabels # 1)
+
+  1): Return the number of labels of the current labelCacheObj.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>labelCacheObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='labelcachemember'>
+   <title>labelCacheMemberObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>labelCacheMemberObj</emphasis>  labelCacheMemberObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myLabelCacheMember = labelCacheMemberObj() # 1)
+
+  1): Create an instance of labelCacheMemberObj.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+      <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelcachememberobj'> Perl MapScript Reference: labelCacheObj members</ulink>.
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>labelCacheObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='markercachemember'>
+   <title>markerCacheMemberObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>markerCacheMemberObj</emphasis>  markerCacheMemberObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myMarkerCacheMember = markerCacheMemberObj() # 1)
+
+  1): Creates an instance of markerCacheMemberObj.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#markercachememberobj'> Perl MapScript Reference: markerCacheMemberObj members</ulink>.
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>markerCacheMemberObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id='web'>
+   <title>webObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>webObj</emphasis>  webObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myWebO = webObj() # 1)
+
+  1): Create new web object.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#webobj'> Perl MapScript Reference: webObj members</ulink>.
+  </para>
+  <para>
+  <emphasis>Example:</emphasis>
+  <programlisting>
+  >>> img.imageurl = '/mapserver/tmp' # 1)
+
+  1): Set the base URL for IMAGEPATH. This is the URL that will take the web browser
+     to IMAGEPATH to get the images.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>webObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+  <sect2 id='refMap'>
+   <title>referenceMapObj Class</title>
+    <sect3 id='Constructor'>
+     <title>Constructors</title>
+  <programlisting>
+  <emphasis>referenceMapObj</emphasis>  referenceMapObj()
+  </programlisting>
+  <para><emphasis>Example:</emphasis>
+  <para>
+  <programlisting>
+  >>> myRefMap = referenceMapObj() # 1)
+
+  1): Create an instance of referenceMapObj.
+  </programlisting></para>
+  </para>
+    </sect3>
+    <sect3 id='attribute'>
+     <title>Attributes</title>
+  <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#referencemapobj'> Perl MapScript Reference: referenceMapObj members</ulink>.
+  </para>
+  <para>
+  <emphasis>Example:</emphasis>
+  <programlisting>
+  >>> myRefMap.status = MS_ON # 1)
+
+  1): Turn status of referenceMapObj to MS_ON.
+  </programlisting>
+  </para>
+    </sect3>
+    <sect3 id='Methods'>
+     <title>Methods</title>
+  <para>referenceMapObj class has no methods.
+  </para>
+    </sect3>
+  </sect2>
+  <sect2 id='querymap'>
+   <title>queryMapObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title> 
+   <programlisting>
+   <emphasis>queryMapObj</emphasis>  queryMapObj()
+   </programlisting>
+   <para><emphasis>Example:</emphasis>
+   <para> 
+   <programlisting>
+   >>> myQueryMap = QueryMapObj() # 1)
+	         
+   1): Create an instance of QueryMapObj. 
+   </programlisting></para> 
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#querymapobj'> Perl MapScript Reference: referenceMapObj members</ulink>.
+   </para>
+     </sect3>
+   </sect2>
+   <sect2 id='colorObj'>
+    <title>colorObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>colorObj</emphasis>  colorObj()
+   </programlisting>
+   <para><emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myColor = colorObj() # 1)
+   1): Creat new colorObj.
+   </programlisting></para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+   <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#colorobj'> Perl MapScript Reference: colorObj members</ulink>.
+   </para>
+   <para><emphasis>Example:</emphasis>
+   <programlisting>
+   >>> myColor.red = 255 # 1)
+
+   1): Attribute red is set to integer 255.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>colorObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='pointObj'>
+    <title>pointObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>pointObj</emphasis>  pointObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myPoint = pointObj() # 1)
+
+   1): Create an instance of pointObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#pointobj'> Perl MapScript Reference: pointObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> myPoint.x = 100    # 1)
+   >>> pointx = myPoint.x # 2)
+   >>> pointy = myPoint.y # 3)
+
+   1): Assign integer pixel value to the x coordinate of pointObj 'myPoint'.
+   2): Current x-coordinate of 'myPoint' is assigned to variable 'pointx'.
+   3): Current y-coordinate of 'myPoint' is assigned to variable 'pointy'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#pointobj'> Perl MapScript Reference: pointObj methods</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> n_distance = myPoint.distanceToPoint(otherPoint) # 1)
+
+   1): <emphasis>double</emphasis> distanceToPoint(pointObj); returns the
+   distance between two points
+   </programlisting>
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='lineObj'>
+    <title>lineObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>lineObj</emphasis>  lineObj()
+   </programlisting>
+   <para><emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myLine = lineObj() # 1)
+
+   1): Create new lineObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#lineObj'> Perl MapScript Reference: lineObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> n_points = myLine.numpoints # 1)
+
+   1): Assign int numpoints to variable 'n_points'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+   <title>Methods</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html'> Perl MapScript Reference: lineObj methods</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> myShapefile = shapefileObj('/path/to/data/file',-1) # 1)
+   >>> myShape = shapeObj(MS_SHAPE_POLYGON)                # 2)
+   >>> myShapefile.get(0, myShape)                         # 3)
+   >>> myLine = myShape.get(0)                             # 4)
+   >>> for i in range(myLine.mumpoints):                   # 5)
+   ...  myPoint = myLine.get(i)
+   ...  print myPoint
+
+   1): Create an instance of shapefileObj; <emphasis>shapefileObj</emphasis> shapefileObj(filename,type)
+   2): Generate the shapeObj 'myShape'; <emphasis>shapeObj</emphasis> shapeObj(type)
+   3): Retrieve a shape of 'myShapefile' by index; get(integer index,shapeObj) - returns integer, -1 if index
+       is &lt; 0 or &gt;= number of shapes
+   4): Generate a lineObj by a given shapeindex; <emphasis>lineObj</emphasis> shapeObj.get(integer index)
+   5): The attribute numpoints of lineObj returns the lineObject's number of points. Range is used to iterate through
+       numpoints and creates a pointObj for every value of myLine.numpoints.
+   </programlisting>
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='shape'>
+    <title>shapeObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>shapeObj</emphasis>  shapeObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myShape = shapeObj() # 1)
+
+   1): Creates an instance of shapeObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapeobj'> Perl MapScript Reference: shapeObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> n_extents = myShape.bounds    # 1)
+   >>> n_minx = myShape.bounds.minx  # 2)
+   >>> n_miny = myShape.bounds.miny  # 3)
+   >>> n_maxx = myShape.bounds.maxx  # 4)
+   >>> n_maxy = myShape.bounds.maxy  # 5)
+   >>> numlines = myShape.numlines   # 6)
+
+   1) to 6): Different parameters are read out from 'myShape' and assigned to varaibles
+
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+   <title>Methods</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapeobj'> Perl MapScript Reference: shapeObj methods</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis></para>
+
+   <para>Please see <link linkend='lineObj'>lineObj section</link> or <link linkend='shapefile'>shapefileObj section</link> for more information.
+
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='shapefile'>
+    <title>shapefileObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>shapefileObj</emphasis>  shapefileObj(filename,type)
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myShpfile = shapefileObj('lakes',-1)     # 1)
+   >>> if not hasattr(myShpfile,'bounds'):
+   ...   print "Unable to open lakes shapefile"
+   ...
+
+
+   1): Create a shapfileObj from a existing file. No extension is necessary. For existing files type should be -1.
+       To create an empty file type can be MS_SHAPEFILE_POINT, MS_SHAPEFILE_ARC, MS_SHAPEFILE_POLYGON, 
+       or MS_SHAPEFILE_MULTIPOINT.To Close a shapefile you've opened you need to undefine the reference, 
+       ie. "myShpfile = None"
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapefileobj'> Perl MapScript Reference: shapeObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> n_extents = myShpfile.bounds
+   >>> n_minx = n_extents.minx
+   >>> n_miny = n_extents.miny
+   >>> n_maxx = n_extents.maxx
+   >>> n_maxy = n_extents.maxy
+   >>> n_numshapes = myShpfile.numshapes
+   >>> typeno = myShpfile.type
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapefileobj'> Perl MapScript Reference: shapefileObj methods</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> myMap = mapObj('mapfile.map')             # 1)
+   >>> myLayer = layerObj(myMap)                 # 2)
+   >>> newshpf = shapefileObj("newshpfname", 5)  # 3)
+   >>> poly = 400                                # 4)
+   >>> shpf = shapefileObj("data_shapefile", -1) # 5)
+   >>> shpo = new shapeObj(-1)                   # 6)
+   >>> shpf.get(poly, shpo)                      # 7)
+   >>> newshpf.add(shpo)                         # 8)
+   >>> newrect = newshpf.bounds                  # 9)
+   >>> newminx = newrect.minx
+   >>> newminy = newrect.miny
+   >>> newmaxx = newrect.maxx
+   >>> newmaxy = newrect.maxy
+   >>> newshpf = None 10)
+
+   1):  Open the map.
+   2):  Create the layer object to query.
+   3):  Create a new shapefile for the selection set.
+   4):  Set index value for selected shape.
+   5):  Create a shapefile object for getting queried shape.
+   6):  Create shape object for storing queried shape.
+   7):  Retrieve shape into shape object.
+   8):  Put shape into new shapefile.
+   9):  Get the extent of the new shapefile.
+   10): Close new shapefile.
+   </programlisting>
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='rectObj'>
+    <title>rectObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>rectObj</emphasis>  rectObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myRect = rectObj()                # 1)
+
+   1): Generates the rectObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#rectobj'> Perl MapScript Reference: rectObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> x = myRect.minx # 1)
+
+   1): Value of attribute minx (double left) is assigned varaible 'x'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#rectobj'> Perl MapScript Reference: rectObj methods</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+
+   myRect = draw(myMap,myLayer,myImage,1,'text') # 1)
+
+   1): Draw(mapObj,layerObj,imageObj,integer classindex,character text); returns integer, 0 on success.
+       Draw an individual rectangle using layerObj. (The class_index is used to classify the feature based on the
+       classes defined for layerObj. The text string is used to annotate the shape.)
+   </programlisting>
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='itemObj'>
+    <title>itemObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>itemObj</emphasis>  itemObj(string)
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myItem = itemObj() # 1)
+
+   1): Generates itemObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#itemobj'> Perl MapScript Reference: itemObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> myItem.name = 'a_item' # 1)
+     
+   1): Assigns 'a_item' to "myItem.name".
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>itemObj class has no methods.
+    </para>
+      </sect3>
+   </sect2>
+
+
+   <sect2 id='resultcache'>
+     <title>resultCacheObj Class</title>
+      <sect3 id='Constructor'>
+       <title>Constructors</title>
+   <programlisting>
+   <emphasis>resultCacheObj</emphasis>  resultCacheObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myResultCache = resultCacheObj()                # 1)
+
+   1): Generates a resultCacheObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#resultcacheobj'> Perl MapScript Reference: resultCacheObj members</ulink>.
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>resultCacheMemberObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='resultcachemember'>
+    <title>resultCacheMemberObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>resultCacheMemberObj</emphasis>  resultCacheMemberObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myResultMember = resultCacheMemberObj()                # 1)
+
+   1): Generates a resultCacheMemberObj.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#resultcacheobj'> Perl MapScript Reference: resultCacheMemberObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> shaperecnum = myResultMember.shapeindex  # 1)
+
+   1): Returns the shapeindex of 'myResultMember'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>resultCacheMemberObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+
+  <sect2 id='projObj'>
+    <title>projectionObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>projectionObj</emphasis>  projectionObj(string)
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myProjObj = projectionObj('proj=utm,ellps=GRS80,zone=15,north,no_defs') # 1)
+
+   1): Generates projectionObj 'myProjObj'.
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#projectionobj'> Perl MapScript Reference: projectionObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> nr_args = myProjObj.numargs  # 1)
+
+   1): Returns integer numargs -  actual number of projection args.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>projectionObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+
+
+   <sect2 id='scalebarobj'>
+    <title>scalebarObj Class</title>
+     <sect3 id='scaleBarObj Class'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>scalebarObj</emphasis>  scalebarObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myScalebar  = scalebarObj()
+
+   1): Generates a scalebarObj().
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+      <title>Attributes</title>
+       
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#scalebarobj'> Perl MapScript Reference: referenceMapObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> n_height = myScalebar.height  # 1)
+    
+   1): Assigns the height of 'myScalebar to variable 'n_height'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+       <title>Methods</title>
+   <para>projectionObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+
+   <sect2 id='legendobj'>
+    <title>legendObj Class</title>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+   <programlisting>
+   <emphasis>legendObj</emphasis>  legendObj()
+   </programlisting>
+   <para>
+   <emphasis>Example:</emphasis>
+   <para>
+   <programlisting>
+   >>> myLegend  = legendObj()
+
+   1): Generates a legendObj().
+   </programlisting>
+   </para>
+   </para>
+     </sect3>
+     <sect3 id='attribute'>
+     <title>Attributes</title>
+   <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#legendObj'> Perl MapScript Reference: referenceMapObj members</ulink>.
+   </para>
+   <para>
+   <emphasis>Example:</emphasis>
+   <programlisting>
+   >>> l_height = myLegend.height  # 1)
+
+   1): Assigns the height of 'myLegend to variable 'l_height'.
+   </programlisting>
+   </para>
+     </sect3>
+     <sect3 id='Methods'>
+      <title>Methods</title>
+   <para>projectionObj class has no methods.
+   </para>
+     </sect3>
+   </sect2>
+   
+   <sect2 id='DBF'>
+    <title>DBFInfo object</title>
+     <sect3 id='intro'>
+      <title>Information</title>
+   <para>While trying to build applications with python-mapscript it seemed that the DBFfile support that comes with
+mapscript included, is when used via python-mapscript rather unstable. We experienced segmentation faults pretty often.
+Therefor we used the dbf functions of the python binding of Frank Warmerdam's shapelib: <ulink url='http://gdal.velocet.ca/projects/shapelib/'>pyshapelib</ulink> (provided by Bernhard Herzog) for reading and writing dbf files.</para>
+   <para>The documentation to the DBFFile functions of the shapelib can be found <ulink url='http://gdal.velocet.ca/projects/shapelib/dbf_api.html'>here</ulink>.</para>
+     </sect3>
+     <sect3 id='Constructor'>
+      <title>Constructors</title>
+      <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo'></ulink></para>
+     <programlisting>
+   <emphasis>DBFInfoObj</emphasis>  msDBFCreate(<emphasis>string</emphasis> dbf_filename)
+   """Creates a new DBF-file with the give name and returns a DBFInfoObj.
+   Omit an extension or if the extension is *.shp/SHP or *.shx/SHX it
+   is converted in *.dbf/DBF."""
+
+   <emphasis>DBFInfoObj</emphasis>  msDBFOpen(<emphasis>string</emphasis> dbf_filname, <emphasis>string</emphasis>  access_parameters)
+   """Opens an existing DBF-file with the give name and returns a DBFInfoObj.
+    Access parameters can be "rb" (readonly) or "r+" (append)."""
+   </programlisting>
+    </sect3>
+
+    <sect3 id='Methods'>
+     <title>Methods</title>
+     <para>cp.: <ulink url='http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo'></ulink></para>
+     <programlisting>
+    <emphasis>int</emphasis>  msDBFAddField(<emphasis>DBFInfoObj</emphasis> dbffilehandlename, <emphasis>string </emphasis>field_name, <emphasis>int</emphasis> field_type, <emphasis>int</emphasis> field_width, <emphasis>int</emphasis> field_decimals)
+   """Adds a field to a dbf-file."""
+
+   <emphasis>int</emphasis>  msDBFGetFieldCount(<emphasis>DBFInfoObj</emphasis> dbffilehandlename)
+      """Returns the number of fields of a dbf-file."""
+
+   <emphasis>int</emphasis>  msDBFWriteStringAttribute(<emphasis>DBFInfoObj</emphasis> dbffilehandlename, <emphasis>int</emphasis> record_nr, <emphasis>int</emphasis> field_nr, <emphasis>string</emphasis> attribute)
+      """Adds a string atttribute to a dbf record."""
+
+   <emphasis>string</emphasis>  msDBFReadStringAttribute(<emphasis>DBFInfoObj</emphasis> dbffilehandlename, <emphasis>int</emphasis> record_nr, <emphasis>int</emphasis> field_nr)
+      """Returns the string value of the specified dbf record."""
+
+   <emphasis>None</emphasis>  msDBFClose(<emphasis>DBFInfoObj</emphasis> dbffilehandlename)
+      """Close the dbf file and flush the last changes."""
+   <programlisting>   
+
+   <emphasis>Example:</emphasis>
+  </programlisting>
+  """ Extracts basic descriptive information from the shapefile.
+  """
+  """ Starting this script on command line with an argument given: python shpinfo.py your_shp
+  """
+  
+  """Module import   
+  """
+  from mapscript import *                                                                                     
+  from string import *
+  import sys
+  import os
+  
+  """Definition of dictionaries for shape types and dbffield types.
+  """
+  shp_type = {'1':'Point','3':'Line','5':'Polygon','8':'MulitPoint'}
+  dbffield_type = {'0':'String','1':'Integer','2':'Double','3':'Invalid'}
+  
+  
+  def open_shpfile(name):
+    """Open ShapeFile and return shapeFileObj"""
+  
+    if os.access(sys.argv[1] + ".shp", os.F_OK):
+       shp = shapefileObj(sys.argv[1], -1)
+    else:
+       print "Can't access shapefile"
+       sys.exit(2)
+  
+    return shp
+    
+  def print_shpinfo(shp):
+    """Print shapefile Information ..."""
+  
+    print "Shape : \t%s" % split(shp.source,'/')[-1]
+    print "Path : \t%s" % join(split(shp.source,'/')[1:-1],'/')
+    print "Type : \t%s" % shp_type[str(shp.type)]
+    print "No. Shapes : \t%s" % shp.numshapes
+    print "Bounds : \t(%f,%f) (%f,%f)" % (shp.bounds.minx,shp.bounds.miny,shp.bounds.maxx,shp.bounds.maxy)
+    print split(shp.source,'/')[-1]
+    dbf = msDBFOpen("/%s/%s.dbf" % (join(split(shp.source,'/')[1:-1],'/'),str(split(shp.source,'/')[-1])),"rb")
+    print "\tName             Type    Length Decimals";
+    print "\t---------------- ------- ------ --------";
+    for field_nr in range(0,dbf.nFields):
+      print "\t%-16s %-7s %6d %8d" % (dbf.getFieldName(field_nr), dbffield_type[str(dbf.getFieldType(field_nr))], dbf.getFieldWidth(field_nr), dbf.getFieldDecimals(field_nr) )
+  
+    recnr = msDBFGetRecordCount(dbf)
+    print "Nr. of records: %s" % str(recnr)
+  
+  
+  """ Open shapefile, passed as argument while starting the script from command line.
+  """
+  """ Passed args are stored as a list of strings in sys.argv.
+  """
+  if __name__ == "__main__":
+     shp = open_shpfile(sys.argv[1])
+     print_shpinfo(shp)
+   </programlisting>
+    </sect3>
+  </sect2>
+</sect1>
+
+<!-- Section1: Document Info -->
+<sect1 id='docinfo'>
+  <title>About This Document</title>
+
+  <sect2 id='copyright'>
+   <title>Copyright Information</title>
+
+   <para>
+    Copyright (c) 2002, M. Schulz, in medias res GmbH - Freiburg, Germany.
+   </para>
+   <para>
+    This documentation is covered by the same Open Source license as the MapServer software.
+    See MapServer's
+    <ulink url='http://mapserver.gis.umn.edu/license.html'>License and
+    Credits</ulink> page for the complete text.
+   </para>
+  </sect2>
+
+  <sect2 id='disclaimer'>
+   <title>Disclaimer</title>
+
+   <para>
+    No liability for the contents of this document can be accepted.
+    Use the concepts, examples and other content at your own risk.
+    As this is a new edition of this document, there may be errors
+    and inaccuracies that may be damaging to your system.
+    Although this is highly unlikely, the author(s) do not take any
+    responsibility for that:  proceed with caution.
+   </para>
+  </sect2>
+
+<!-- Section2: feedback -->
+  <sect2 id='feedback'>
+   <title>Feedback</title>
+   <para>
+    Send any comments or suggestions to the document <ulink url='mailto:mschulz@webgis.de'>author(s)</ulink>.
+   </para>
+   </sect2>
+
+ </sect1>
+</article>
