@@ -5,6 +5,9 @@
  *
  **********************************************************************
  * $Log$
+ * Revision 1.38.2.1  2004/09/07 20:15:54  julien
+ * Multiple changes to support OWS Context
+ *
  * Revision 1.38  2004/08/03 23:26:24  dan
  * Cleanup OWS version tests in the code, mapwms.c (bug 799)
  *
@@ -177,6 +180,7 @@ MS_DLL_EXPORT char *msOWSGetOnlineResource(mapObj *map, const char *metadata_nam
 MS_DLL_EXPORT const char *msOWSGetSchemasLocation(mapObj *map);
 
 // Constants for OWS Service version numbers
+#define OWS_0_0_7   0x000007
 #define OWS_0_1_2   0x000102
 #define OWS_0_1_4   0x000104
 #define OWS_0_1_6   0x000106
