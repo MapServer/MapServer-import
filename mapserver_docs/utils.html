@@ -1,7 +1,7 @@
 <html>
   <head>
       <title>MapServer - Documentation: MapServer Utility Programs</title>
-      <script language="javascript" src="javascript/include.js"></script>
+      <script language="javascript" src="../javascript/include.js"></script>
   </head>
   <body bgcolor="#FFFFFF" marginheight=0 marginwidth=0 style="margin:0px">
 
@@ -51,7 +51,10 @@
     from extents of all the shapefiles listed in [metafile] (one shapefile 
     name per line) and the associated DBF with the filename for each shape tile
     in a column called LOCATION as required by mapserv.<br>
-    <b>Syntax:</b> tile4ms [metafile] [tilefile]<br>
+    <b>Syntax:</b> tile4ms [metafile] [tilefile] [-tile-path-only]<br>
+    -tile-path-only is an optional flag which specifies that only the path to the shape file
+    should be stored in the LOCATION field.
+    <br>
     <b>Example:</b> create tileindex.shp for all tiles under the /path/to/data
     directory (works only on Unix):
 <PRE>       cd /path/to/data

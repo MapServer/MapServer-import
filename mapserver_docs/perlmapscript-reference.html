@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+  <title>Perl MapScript Reference - 3.6 <b>Noted</b> Changes</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h2><u>Perl MapScript Reference</u></h2>
+<b><u>Abstract:</u> Work In Progress</b><br>
+This document is a reference to the <b>Noticed Changes</b> in the Perl MapScript syntax for MapServer version 3.6.<br>
+Last Updated: 4/16/2002 by <a href="mailto:lfilak@medinaco.org">Lowell Filak</a>
+<br>
+Medina County Engineer's Office<br>
+Medina, Ohio<br>
+United States<br>
+<hr width="90%" size="2">
+<a name="toc"></a><br>
+</a><b><u>Table of Contents:</u></b><br>
+<br>
+<a href="#introduction">Introduction</a><br>
+<a href="#mapobj">mapObj(ect)</a><br>
+<a href="#imageobj">imageObj</a><br>
+<a name="introduction"></a><br>
+<a href="#toc"><b><u>Introduction:</u></b></a><br>
+All notes contained here incorporate the following nightly builds:<br>
+4-16-2002<br>
+<br>
+<a name="mapobj"></a><br>
+<a href="#toc"><b><u>mapObj:</u></b></a><br>
+<br>
+<table border="0">
+  <tr>
+    <td>
+      <b>Constructor:</b><br>
+    </td>
+    <td>
+      new mapObj(mapfile name)
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Example:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Members:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>latlon - projectionObj - rw - REMOVED Use getProjection.</li>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>projection - projectionObj - rw - REMOVED Use getProjection.</li>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>querymap - queryMapObj - rw.</li>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Examples:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table border="1">
+  <tr>
+    <th>
+      <b>Methods:</b>
+    </th>
+    <th>
+      Type
+    </th>
+    <th>
+      Method
+    </th>
+    <th>
+      Description
+    </th>
+    <th>
+      Returns
+    </th>
+    <th>
+      Notes
+    </th>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      getLayersdrawingOrder()
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      getNumSymbols()
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+      may not work (typo).
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      moveLayerdown(integer layerindex)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      moveLayerup(integer layerindex)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      character
+    </td>
+    <td>
+      processLegendTemplate(char names,char values,int numentries)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      character
+    </td>
+    <td>
+      processQueryTemplate(char names,char values,int numentries)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      character
+    </td>
+    <td>
+      processTemplate(int bGenerateImages,char names,char values,int numentries)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      setLayersdrawingOrder(integer panIndexes)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      integer
+    </td>
+    <td>
+      setSymbolSet(char szFileName)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Example:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<a name="imageobj"></a><br>
+<a href="#toc"><b><u>imageObj:</u></b></a><br>
+<br>
+<table border="0">
+  <tr>
+    <td>
+      <b>Constructor:</b><br>
+    </td>
+    <td align="left">
+      n/a. Created by prepare & draw methods.
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Example:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Members:</b>
+    </td>
+    <td>
+      <li>height - integer - ro.</li>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>imagepath - character - ro.</li>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>imageurl - character - ro.</li>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      <li>width - integer - ro.</li>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Example:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table border="1">
+  <tr>
+    <th>
+      <b>Methods:</b>
+    </th>
+    <th>
+      Type
+    </th>
+    <th>
+      Method
+    </th>
+    <th>
+      Description
+    </th>
+    <th>
+      Returns
+    </th>
+    <th>
+      Notes
+    </th>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      void
+    </td>
+    <td>
+      free()
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      void
+    </td>
+    <td>
+      saveImage(char filename,MS_IMAGE_TYPE,int transparent,int interlace,int quality)
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+<br>
+<table>
+  <tr>
+    <td>
+      <b>Example:</b>
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
