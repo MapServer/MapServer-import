@@ -21,7 +21,7 @@
 			<para>
     			This document describes the procedures for obtaining, compiling and installing MapServer on UNIX-type platforms.
     			</para>
-			<para>Last Updated:  12-12-2001</para>
+			<para>Last Updated:  08-14-2002</para>
 		</abstract>
 	</articleinfo>
 	<sect1 id="intro">
@@ -195,7 +195,7 @@ checking for FT_Init_FreeType in -lfreetype... yes
 		<para>The first thing you should do is unpack the source code tar-ball:
 
   <screen>
-  [user@host user]$ tar -zxvf ms_3.5.000.tar.gz
+  [user@host user]$ tar -zxvf mapserver-3.6.1.tar.gz
   </screen>
 
   This will unpack the file into a directory called "mapserver".
