@@ -20,7 +20,7 @@
 			<para>
     			This document is a reference to the MapFile syntax for MapServer version 3.5.
    			</para>
-			<para>Last Updated:  12-12-2001</para>
+			<para>Last Updated:  06-12-2001</para>
 		</abstract>
 	</articleinfo>
 	<sect1>
@@ -42,7 +42,8 @@
 				</listitem>
 				<listitem>
 					<para>File paths may be given as absolute paths, or as paths relative to the location of the mapfile.  In addition, data files
-                may be specified relative to the <link linkend="shapepath">SHAPEPATH</link></para>
+                may be specified relative to the <link linkend="shapepath">SHAPEPATH</link>
+					</para>
 				</listitem>
 				<listitem>
 					<para>The mapfile has a hierarchical structure, with the Map object being the "root". All other objects fall under this one.</para>
@@ -53,11 +54,14 @@
 				<listitem>
 					<para>Attributes are named using the following syntax: [ATTRIBUTENAME] ... Note that the name of the attribute included between the square brackets IS CASE SENSITIVE.  Generally ESRI generated shapefiles have their attributes (.dbf column names) all in upper-case for instance, and for PostGIS, ALLWAYS use lower-case.</para>
 				</listitem>
+				<listitem>
+					<para>MapServer Regular Expressions are used through the operating system's C Library.  For information on how to use and write Regular Expressions on your system, you should read the documentation provided with your C Library.  On Linux, this is GLibC, and you can read "man 7 regex" ... This man page is also available on most UNIX's.  Since these RegEx's are POSIX compliant, they should be the same on Windows as well, so windows users can try searching the web for "man 7 regex" since man pages are available all over the web. </para>
+				</listitem>
 			</itemizedlist>
 		</sect2>
 		<sect2 id="map">
 			<title>Map Object</title>
-                        <para>Defines the master object of the MapFile, that is the object that holds all other objects (i.e. the "root").  It defines application/map wide parameters.</para>
+			<para>Defines the master object of the MapFile, that is the object that holds all other objects (i.e. the "root").  It defines application/map wide parameters.</para>
 			<variablelist>
 				<varlistentry>
 					<term>EXTENT [minx] [miny] [maxx] [maxy]</term>
@@ -548,7 +552,8 @@ END
 				<varlistentry>
 					<term>TEMPLATE [file|url]</term>
 					<listitem>
-						<para>Used as a global alternative to <link linkend="class">CLASS</link>&nbsp;<link linkend="template">TEMPLATE</link></para>
+						<para>Used as a global alternative to <link linkend="class">CLASS</link>&nbsp;<link linkend="template">TEMPLATE</link>
+						</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
@@ -1254,11 +1259,11 @@ SYMBOL
   STYLE 10 5 5 10 END
 END
 </programlisting>
-			<para>This creates a dashed line with 10 pixels on, 5 off, 5 on, 10 off ...</para>
+				<para>This creates a dashed line with 10 pixels on, 5 off, 5 on, 10 off ...</para>
 			</example>
 			<example>
 				<title>TrueType font marker symbol</title>
-					<programlisting>
+				<programlisting>
 SYMBOL
   NAME "natcap"
   TYPE TRUETYPE
@@ -1268,7 +1273,7 @@ SYMBOL
   CHARACTER "&#38;#114;"
 END
 					</programlisting>
-					<para>This symbol is a star, used to represent the national capital, hence the name.  The font name in defined in the <link linkend="fontset">FONTSET</link> file.  The code number "114" varies, you can use MS Windows' character map to figure it out, or guestimate.</para>
+				<para>This symbol is a star, used to represent the national capital, hence the name.  The font name in defined in the <link linkend="fontset">FONTSET</link> file.  The code number "114" varies, you can use MS Windows' character map to figure it out, or guestimate.</para>
 			</example>
 			<example>
 				<title>Vector triangle marker symbol</title>
