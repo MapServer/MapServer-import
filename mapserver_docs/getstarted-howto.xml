@@ -151,13 +151,17 @@
 
   <sect2 id="install"><title>First Application</title>
      To get up-to-speed quickly, you may want to build your first application
-     with the <ulink url="http://hypnos.cbs.umn.edu/projects/tutorial/">MapServer tutorial
-     </ulink> and <ulink url="http://http://maps.dnr.state.mn.us/mapserver_demos/workshop.zip">Demo.</ulink>
-     This will walk you through setting up an application
+     with the <ulink url="http://terrasip.gis.umn.edu/projects/tutorial/">MapServer Tutorial.
+     </ulink> 
+  <para> 
+     The <ulink url="http://maps.dnr.state.mn.us/mapserver_demos/workshop.zip">MapServer Demo</ulink>
+     will walk you through setting up an application
      and familiarize you with mapfiles and template files.
+  </para>
   </sect2>
 
   <sect2 id='rhistory'><title>Document Changes</title>
+
   <para>
      <revhistory>
       <revision>
@@ -166,10 +170,16 @@
         <authorinitials>Author: Kari Geurts</authorinitials>
         <revremark>I added the Revision History section to this document.</revremark>
       </revision>
+      <revision>
+        <revnumber>: 2</revnumber>
+        <date>Date: 04/29/2004 </date>
+        <authorinitials>Author: Kari Guerts</authorinitials>
+        <revremark>I changed the URL link for the tutorial and demo.</revremark>
+      </revision>
+
      </revhistory>
   </para>
   </sect2>
-
+    
 </sect1>
 </article>
-
