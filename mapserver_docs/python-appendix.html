@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.0: http://docutils.sourceforge.net/" />
+<title>Python Appendix</title>
+<meta name="date" content="2004-05-25" />
+<meta name="author" content="Sean Gillies" />
+<link rel="stylesheet" href="mapscript.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="python-appendix">
+<h1 class="title">Python Appendix</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="field"><th class="docinfo-name">Release:</th><td class="field-body">4.2</td>
+</tr>
+<tr><th class="docinfo-name">Revision:</th>
+<td>1.4.2.1</td></tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>2004-05-25</td></tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>Sean Gillies</td></tr>
+<tr><th class="docinfo-name">Contact:</th>
+<td><a class="first last reference" href="mailto:sgillies&#64;frii.com">sgillies&#64;frii.com</a></td></tr>
+</tbody>
+</table>
+<!-- $Id$
+
+This is the new unified mapscript documentation prepared using
+reStructured Text.
+
+***************************************************************
+RULE #1: No tabs in this document!
+RULE #2: Indent is 4 characters.
+RULE #3: There is no rule 3.
+
+Thank you.
+***************************************************************
+
+reStructured Text is part of the Python docutils module
+
+    http://docutils.sourceforge.net/
+
+Documentation on reStructured Text is found at
+
+    http://docutils.sourceforge.net/rst.html
+
+First reST note is about comments: a double period begins a comment
+block (like a /* in C) and a double period on a line all by itself
+closes the comment block. -->
+<!--  -->
+<!-- Below is our main heading (becomes H1).  Note that we require empty
+lines between every different reST element such as the empty line
+between the end of this comment and the begining of the heading. -->
+<!--  -->
+<!-- The next heading encountered becomes our H2 -->
+<!--  -->
+<div class="section" id="introduction">
+<h1><a name="introduction">Introduction</a></h1>
+<p>The Python mapscript module contains some class extension methods that have
+not yet been implemented for other languages.</p>
+</div>
+<div class="section" id="classes">
+<h1><a name="classes">Classes</a></h1>
+<p>References to sections below will be added here as the documentation grows.</p>
+<p><a class="reference" href="#imageobj">imageObj</a></p>
+<div class="section" id="imageobj">
+<h2><a name="imageobj">imageObj</a></h2>
+<p>The Python Imaging Library, <a class="reference" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a>, is an
+indispensible tool for image manipulation.  The extensions to imageObj are
+all geared towards better integration of PIL in mapscript applications.</p>
+<div class="section" id="methods">
+<h3><a name="methods">Methods</a></h3>
+<a class="target" id="new-imageobj" name="new-imageobj"></a><dl>
+<dt>imageObj(int width, int height [, string driver [, PyObject file]]) <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="#imageobj">imageObj</a></span></dt>
+<dd><p class="first">Create a new instance which is either empty or read from a Python
+file-like object.  If <em>file</em> is provided, the size of the
+file's image override any other parameters passed to the method.  
+The <em>driver</em> must be specified as well as <em>file</em> as the method does
+not auto-detect the file's image format.</p>
+<p>If <em>file</em> is not specified an imageObj is created with the specified
+dimensions and of the format specified by <em>driver</em> or of a default
+format obtained by trying &quot;GD/GIF&quot;, &quot;GD/PNG&quot;, and &quot;GD/JPEG&quot; in that
+order.</p>
+<p>Interesting values of <em>file</em> to try are instances of <em>StringIO</em></p>
+<pre class="literal-block">
+s = StringIO()
+pil_image.save(s)    # Save an image manipulated with PIL
+ms_image = imageObj(0, 0, 'GD/PNG', s)
+</pre>
+<p>Or the file-like object returned from <em>urlopen</em></p>
+<pre class="last literal-block">
+url = urllib.urlopen('http://mapserver.gis.umn.edu/bugs/ant.jpg')
+ms_image = imageObj(0, 0, 'GD/JPEG', url)
+</pre>
+</dd>
+</dl>
+<a class="target" id="savetostring" name="savetostring"></a><dl>
+<dt>saveToString() <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first">Write the image data to a string rather than to a file.  What's the use
+of this?  Consider the following pointless example :)</p>
+<pre class="literal-block">
+data = imgobj.saveToString()
+fh = open('foo.%s' % imgobj.format.extension, 'wb')
+fh.write(data)
+fh.close()
+</pre>
+<p>Or the more useful example using PIL</p>
+<pre class="literal-block">
+data = imgobj.saveToString()
+
+from StringIO import StringIO
+from PIL import Image
+
+pil_image = Image.open(StringIO(data))
+
+# Now do whatever you want using PIL
+</pre>
+<p>This method will be deprecated as soon as we change the save() method
+of imageObj to save to Python file-like objects, allowing</p>
+<pre class="last literal-block">
+s = StringIO()
+</pre>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="python.txt">View document source</a>.
+Generated on: 2004-05-25 17:21 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>
+</body>
+</html>
