@@ -642,9 +642,21 @@ END
 					</listitem>
 				</varlistentry>
 				<varlistentry>
+					<term>MAXSCALE [double]</term>
+					<listitem>
+						<para>Maximum scale at which this class applies.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
 					<term>MAXSIZE [integer]</term>
 					<listitem>
 						<para>Maximum size in pixels to draw a symbol. Default is 50.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>MINSCALE [double]</term>
+					<listitem>
+						<para>Minimum scale at which this class applies.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
