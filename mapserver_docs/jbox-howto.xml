@@ -23,14 +23,14 @@
       installing, and incorporating the <application>jBox</application> Java applet into
       MapServer web pages. 
     (<application>jBox</application> was formerly called &quot;<application>Mapplet</application>&quot;.) 
-	 <application>jBox</application> is compatible with Mapserver versions 3.x and 4.0.
+	 <application>jBox</application> is compatible with Mapserver versions 3.x and 4.x.
   </para>
 
 	<para>
 		This HOWTO is based on the previous version written by Ken Boss <email>kenboss@dilbert.dnr.state.mn.us</email>
   </para>
   
-	<para>Last Updated:  February 15, 2004</para>
+	<para>Last Updated:  June 15, 2004</para>
   </abstract>
 </articleinfo>
 
@@ -534,10 +534,10 @@
           <varlistentry><term>MAYSCRIPT</term>
             <listitem>
               <para>
-                Permits the Java applet to access JavaScript functions
-                (required for the <application>jBox</application>).  Accessing JavaScript
-                when the MAYSCRIPT attribute is not specified results
-                in an exception.
+                Permits the Java applet to access JavaScript functions (required for the <application>jBox</application>).  
+                This attribute prevents an applet from accessing JavaScript on a page without the knowledge of the page author. 
+                Attempting to access JavaScript from an applet that does not have the MAYSCRIPT attribute generates an exception. 
+                The MAYSCRIPT tag is needed only for Java to access JavaScript; it is not needed for JavaScript to access Java.
               </para>
             </listitem>
           </varlistentry>
@@ -768,12 +768,22 @@
     <varlistentry><term>box</term>
       <listitem>
         <para>
-          Initial box drawing status.  Valid values are "on" or "off".  
-          Default is "on".  If set to "off", any mouse-button
+          Initial box drawing status.  Valid values are "true" or "false".  
+          Default is "true".  If set to "false", any mouse-button
           action inside the <application>jBox</application> applet
           interface will always be represented by the crosshair cursor.
           The public methods boxon() and boxoff() are used to turn box 
           drawing on and off once the applet has been initialized.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry><term>drag</term>
+      <listitem>
+        <para>
+          Initial drag status. Valid values are "true" or "false".  
+          Default is "false". The public methods dragon() and dragoff() 
+          are used to turn box drawing on and off once the applet has
+          been initialized.
         </para>
       </listitem>
     </varlistentry>
