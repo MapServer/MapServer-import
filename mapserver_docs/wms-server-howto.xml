@@ -15,14 +15,14 @@
 				</address>
 			</affiliation>
 		</author>
-		<date>2004-02-19</date>
+		<date>2004-02-27</date>
 		<abstract>
 			<!-- a short description of the contents of the doc -->
 			<para>
                  This document describes the procedures for setting up an OGC compliant Web Map Server (WMS) through
           the use of MapServer v3.5 (and later).  
       </para>
-			<para>Last Updated: 2004-02-19</para>
+			<para>Last Updated: 2004-02-27</para>
 		</abstract>
 	</articleinfo>
 	<sect1 id="intro">
@@ -535,7 +535,7 @@
 						<para>
               MapLab's <ulink url="http://www.maptools.org/maplab/">MapBrowser</ulink> is a web-based WMS client.
             </para>
-					</listitem>				
+					</listitem>
 					<listitem>
 						<para>
 							<ulink url="http://www.vividsolutions.com/jump/main.htm">JUMP</ulink> is a desktop GIS package 
@@ -549,9 +549,8 @@
 					</listitem>
 					<listitem>
 						<para>
-							<ulink url="http://cgdi-dev.geoconnections.org/prototypes/owsview/index.html">GeoConnections' OWSVIEW</ulink> is an online application
-							that also allows users to add WMS &amp; WFS layers.</para>
-					</listitem>						
+							The <ulink url="http://cgdi-dev.geoconnections.org/prototypes/owsview/index.html">OWSVIEW</ulink> Viewer Client Generator is an online 							application that allows users to add WMS and WFS layers by validating WMS and WFS Capabilities XML.</para>
+					</listitem>
 				</itemizedlist>
 				<para>
         This list is not exhaustive, there are several Open Source or proprietary packages that 
