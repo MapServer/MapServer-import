@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.0: http://docutils.sourceforge.net/" />
+<meta name="date" content="2004-05-25" />
+<meta name="author" content="Sean Gillies" />
+<link rel="stylesheet" href="mapscript.css" type="text/css" />
+</head>
+<body>
+<div class="section" id="next-generation-classes">
+<h1><a class="toc-backref" href="#contents" name="next-generation-classes">Next Generation Classes</a></h1>
+<p>By defining the preprocessor symbol <em>NEXT_GENERATION_API</em> when running
+SWIG to produce wrapper code, one can use the 'next generation' mapscript
+API.  For example</p>
+<pre class="literal-block">
+swig -python -shadow -modern -DNEXT_GENERATION_API -o mapscript_wrap.c ../mapscript.i
+</pre>
+<p>The API changes in the next generation classes result
+from efforts to merge the best of the PHP-Mapscript and SWIG mapscript
+interfaces (Bugzilla issue 575 - 
+<a class="reference" href="http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=575">http://mapserver.gis.umn.edu/bugs/show_bug.cgi?id=575</a>).  As an example, see
+the documentation of <a class="reference" href="#layerobj-getshape">layerObj.getShape</a>.</p>
+<p>Additionally, programmers can experiment with better mapscript class naming
+by defining the symbol <em>NEXT_GENERATION_NAMES</em>.</p>
+<pre class="literal-block">
+swig -python -shadow -modern -DNEXT_GENERATION_NAMES -DNEXT_GENERATION_API -o mapscript_wrap.c ../mapscript.i
+</pre>
+<p>The next generation class names are in capitalized camel case form: <em>Map</em>,
+<em>Layer</em>, <em>OutputFormat</em>, and so on rather than the standard <em>--Obj</em>
+names which are not clearly distinguished from
+class method names.  We're all using object-oriented languages, so the <em>Obj</em>
+suffix is redundant.  It is also a cross-language convention (see CPAN and
+the Python standard library) that package and class names be capitalized.
+Forming class names in a way distinctly different from class attributes and
+methods improves API clarity.</p>
+<p>The features enabled by <em>NEXT_GENERATION_API</em> will almost certainly become
+standard in a future release.  The next generation class names are more
+controversial and more likely to remain an option for users.  Python users
+want them, and can easily port existing code to use the new names.  For 
+example:</p>
+<pre class="literal-block">
+import mapscript
+
+# Rename the next generation classes for use with older code
+mapscript.mapObj = mapscript.Map
+
+# Continue with older code
+mapobj = mapscript.mapObj('foo.map')
+...
+</pre>
+</div>
+</body>
+</html>
