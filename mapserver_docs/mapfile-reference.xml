@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- edited with XML Spy v4.2 U (http://www.xmlspy.com) by Jean-Francois Doyon (Natural Resources Canada) -->
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by Jean-Francois Doyon (Natural Resources Canada) -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://mapserver.gis.umn.edu/mdp/docbkx412/docbookx.dtd">
 <article>
 	<articleinfo>
@@ -907,8 +907,30 @@ END
 						<para>Full filename of the base reference image. Must be a GIF image.</para>
 					</listitem>
 				</varlistentry>
-			</variablelist>
-			<variablelist>
+				<varlistentry>
+					<term>MARKER [integer|string]</term>
+					<listitem>
+						<para>Defines a symbol (from the symbol file) to use when the box becomes too small (see MINBOXSIZE and MAXBOXSIZE below). Uses a crosshair by default.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>MARKERSIZE [integer]</term>
+					<listitem>
+						<para>Defines the size of the symbol to use instead of a box (see MARKER above).</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>MINBOXSIZE [integer]</term>
+					<listitem>
+						<para>If box is smaller than MINBOXSIZE (use box width or height) then use the symbol defined by MARKER and MARKERSIZE.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>MAXBOXSIZE [integer]</term>
+					<listitem>
+						<para>If box is greater than MAXBOXSIZE (use box width or height) then draw nothing (Often the whole map gets covered when zoomed way out and it's perfectly obvious where you are). </para>
+					</listitem>
+				</varlistentry>
 				<varlistentry>
 					<term>OUTLINECOLOR [r][g][b]</term>
 					<listitem>
