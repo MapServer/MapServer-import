@@ -29,6 +29,9 @@
  * DEALINGS IN THE SOFTWARE.
  **********************************************************************
  * $Log$
+ * Revision 1.58.2.2  2004/09/12 18:32:30  julien
+ * Set different metadata for WMS and WFS
+ *
  * Revision 1.58.2.1  2004/09/07 20:15:54  julien
  * Multiple changes to support OWS Context
  *
@@ -296,7 +299,8 @@ char * msGetMapContextFileText(char *filename)
 **
 */
 int msGetMapContextXMLHashValue( CPLXMLNode *psRoot, const char *pszXMLPath, 
-                                 hashTableObj *metadata, char *pszMetadata )
+                                 hashTableObj *metadata, 
+                                 const char *pszMetadata )
 {
   char *pszValue;
 
@@ -329,7 +333,7 @@ int msGetMapContextXMLHashValue( CPLXMLNode *psRoot, const char *pszXMLPath,
 int msGetMapContextXMLHashValueDecode( CPLXMLNode *psRoot, 
                                        const char *pszXMLPath, 
                                        hashTableObj *metadata, 
-                                       char *pszMetadata )
+                                       const char *pszMetadata )
 {
   char *pszValue, *pszDecodedVal;
 
@@ -495,8 +499,9 @@ int msLoadMapContextURLElements( CPLXMLNode *psRoot, hashTableObj *metadata,
 ** psRoot should be set to keywordlist
 */
 int msLoadMapContextListInMetadata( CPLXMLNode *psRoot, hashTableObj *metadata,
-                                    char *pszXMLName, char *pszMetadataName, 
-                                    char *pszHashDelimiter)
+                                    const char *pszXMLName, 
+                                    const char *pszMetadataName, 
+                                    const char *pszHashDelimiter)
 {
   char *pszHash, *pszXMLValue, *pszMetadata;
 
@@ -586,9 +591,13 @@ int msLoadMapContextContactInfo( CPLXMLNode *psRoot, hashTableObj *metadata )
 **
 **
 */
-int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
+int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer, 
+                                const char *pszMFormat)
 {
-  char *pszValue, *pszValue1, *pszHash;
+  char *pszValue, *pszValue1, *pszHash, *pszMFormatList;
+
+  pszMFormatList = (char*)malloc(strlen(pszMFormat)+6);
+  sprintf(pszMFormatList, "%slist", pszMFormat);
 
   if(psFormat->psChild != NULL && 
      strcasecmp(psFormat->pszValue, "Format") == 0 )
@@ -609,22 +618,19 @@ int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
       if(pszValue1 != NULL && 
          (strcasecmp(pszValue1, "1") == 0))
           msInsertHashTable(&(layer->metadata), 
-                            "wms_format", pszValue);
+                            pszMFormat, pszValue);
       // wms_formatlist
-      pszHash = msLookupHashTable(&(layer->metadata), 
-                                  "wms_formatlist");
+      pszHash = msLookupHashTable(&(layer->metadata), pszMFormatList);
       if(pszHash != NULL)
       {
           pszValue1 = (char*)malloc(strlen(pszHash)+
                                     strlen(pszValue)+2);
           sprintf(pszValue1, "%s,%s", pszHash, pszValue);
-          msInsertHashTable(&(layer->metadata), 
-                            "wms_formatlist", pszValue1);
+          msInsertHashTable(&(layer->metadata), pszMFormatList, pszValue1);
           free(pszValue1);
       }
       else
-          msInsertHashTable(&(layer->metadata), 
-                            "wms_formatlist", pszValue);
+          msInsertHashTable(&(layer->metadata), pszMFormatList, pszValue);
   }
 
   /* Make sure selected format is supported or select another
@@ -632,7 +638,7 @@ int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
    * only for GIF/PNG/JPEG, can't try to handle all GDAL
    * formats.
    */
-  pszValue = msLookupHashTable(&(layer->metadata), "wms_format");
+  pszValue = msLookupHashTable(&(layer->metadata), pszMFormat);
 
   if (
 #ifndef USE_GD_PNG
@@ -652,8 +658,7 @@ int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
       char **papszList=NULL;
       int i, numformats=0;
 
-      pszValue = msLookupHashTable(&(layer->metadata), 
-                                   "wms_formatlist");
+      pszValue = msLookupHashTable(&(layer->metadata), pszMFormatList);
 
       papszList = split(pszValue, ',', &numformats);
       for(i=0; i < numformats; i++)
@@ -674,8 +679,7 @@ int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
               0 )
           {
               /* Found a match */
-              msInsertHashTable(&(layer->metadata), 
-                                "wms_format", papszList[i]);
+              msInsertHashTable(&(layer->metadata), pszMFormat, papszList[i]);
               break;
           }
       }
@@ -684,14 +688,19 @@ int msLoadMapContextLayerFormat(CPLXMLNode *psFormat, layerObj *layer)
 
   } /* end if unsupported format */
 
+  free(pszMFormatList);
+
   return MS_SUCCESS;
 }
 
 int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer, 
-                               int nStyle)
+                               int nStyle, const char *pszMStyle)
 {
   char *pszValue, *pszValue1, *pszValue2;
-  char *pszHash, *pszStyle=NULL, *pszStyleName;
+  char *pszHash, *pszStyle=NULL, *pszStyleName, *pszMStyleList;
+
+  pszMStyleList = (char*)malloc(strlen(pszMStyle)+5);
+  sprintf(pszMStyleList, "%slist", pszMStyle);
 
   pszStyleName =(char*)CPLGetXMLValue(psStyle,"Name",NULL);
   if(pszStyleName == NULL)
@@ -706,27 +715,23 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
   pszValue = (char*)CPLGetXMLValue(psStyle,"current",NULL);
   if(pszValue != NULL && 
      (strcasecmp(pszValue, "1") == 0))
-      msInsertHashTable(&(layer->metadata), 
-                        "wms_style", pszStyleName);
+      msInsertHashTable(&(layer->metadata), pszMStyle, pszStyleName);
   // wms_stylelist
-  pszHash = msLookupHashTable(&(layer->metadata), 
-                              "wms_stylelist");
+  pszHash = msLookupHashTable(&(layer->metadata), pszMStyleList);
   if(pszHash != NULL)
   {
       pszValue1 = (char*)malloc(strlen(pszHash)+
                                 strlen(pszStyleName)+2);
       sprintf(pszValue1, "%s,%s", pszHash, pszStyleName);
-      msInsertHashTable(&(layer->metadata), 
-                        "wms_stylelist", pszValue1);
+      msInsertHashTable(&(layer->metadata), pszMStyleList, pszValue1);
       free(pszValue1);
   }
   else
-      msInsertHashTable(&(layer->metadata), 
-                        "wms_stylelist", pszStyleName);
+      msInsertHashTable(&(layer->metadata), pszMStyleList, pszStyleName);
 
   // Title
   pszStyle = (char*)malloc(strlen(pszStyleName)+20);
-  sprintf(pszStyle,"wms_style_%s_title",pszStyleName);
+  sprintf(pszStyle, "%s_%s_title", pszMStyle, pszStyleName);
 
   if( msGetMapContextXMLHashValue(psStyle, "Title", &(layer->metadata), 
                                   pszStyle) == MS_FAILURE )
@@ -736,7 +741,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
 
   // SLD
   pszStyle = (char*)malloc(strlen(pszStyleName)+15);
-  sprintf(pszStyle, "wms_style_%s_sld", pszStyleName);
+  sprintf(pszStyle, "%s_%s_sld", pszMStyle, pszStyleName);
   
   msGetMapContextXMLHashValueDecode( psStyle, "SLD.OnlineResource.xlink:href", 
                                      &(layer->metadata), pszStyle );
@@ -745,8 +750,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
   // LegendURL
   pszStyle = (char*) malloc(strlen(pszStyleName) + 25);
 
-  sprintf( pszStyle, "wms_style_%s_legendurl",
-           pszStyleName);
+  sprintf( pszStyle, "%s_%s_legendurl", pszMStyle, pszStyleName);
   msLoadMapContextURLElements( CPLGetXMLNode(psStyle, "LegendURL"), 
                                &(layer->metadata), pszStyle );
 
@@ -757,8 +761,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
   //
   // Add the stylelist to the layer connection
   //
-  if(msLookupHashTable(&(layer->metadata), 
-                       "wms_stylelist") == NULL)
+  if(msLookupHashTable(&(layer->metadata), pszMStyleList) == NULL)
   {
       if(layer->connection)
           pszValue = strdup(layer->connection);
@@ -771,8 +774,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
           pszValue2 = strchr(pszValue, '&');
           if(pszValue2 != NULL)
               pszValue1[pszValue2-pszValue1] = '\0';
-          msInsertHashTable(&(layer->metadata), "wms_stylelist",
-                            pszValue1);
+          msInsertHashTable(&(layer->metadata), pszMStyleList, pszValue1);
       }
       free(pszValue);
   }
@@ -780,7 +782,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
   //
   // Add the style to the layer connection
   //
-  if(msLookupHashTable(&(layer->metadata), "wms_style") == NULL)
+  if(msLookupHashTable(&(layer->metadata), pszMStyle) == NULL)
   {
       if(layer->connection)
           pszValue = strdup(layer->connection);
@@ -793,8 +795,7 @@ int msLoadMapContextLayerStyle(CPLXMLNode *psStyle, layerObj *layer,
           pszValue2 = strchr(pszValue, '&');
           if(pszValue2 != NULL)
               pszValue1[pszValue2-pszValue1] = '\0';
-          msInsertHashTable(&(layer->metadata), "wms_style",
-                            pszValue1);
+          msInsertHashTable(&(layer->metadata), pszMStyle, pszValue1);
       }
       free(pszValue);
   }
@@ -881,7 +882,7 @@ int msLoadMapContextGeneral(mapObj *map, CPLXMLNode *psGeneral,
 
   // Title
   if( msGetMapContextXMLHashValue(psGeneral, "Title", 
-                              &(map->web.metadata), "wms_title") == MS_FAILURE)
+                              &(map->web.metadata), "ows_title") == MS_FAILURE)
   {
       if ( IS_OWS_CONTEXT(nVersion) || 
            CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
@@ -889,7 +890,7 @@ int msLoadMapContextGeneral(mapObj *map, CPLXMLNode *psGeneral,
       else
       {
           if( msGetMapContextXMLHashValue(psGeneral, "gml:name", 
-                             &(map->web.metadata), "wms_title") == MS_FAILURE )
+                             &(map->web.metadata), "ows_title") == MS_FAILURE )
           {
               if( CONTEXT_VERSION(nVersion) < OWS_0_1_7 )
                 msDebug("Mandatory data General.Title missing in %s.", filename);
@@ -922,11 +923,11 @@ int msLoadMapContextGeneral(mapObj *map, CPLXMLNode *psGeneral,
   {
       msLoadMapContextListInMetadata( 
           CPLGetXMLNode(psGeneral, "KeywordList"),
-          &(map->web.metadata), "KEYWORD", "wms_keywordlist", "," );
+          &(map->web.metadata), "KEYWORD", "ows_keywordlist", "," );
   }
   else
     msGetMapContextXMLHashValue(psGeneral, "Keywords", 
-                                &(map->web.metadata), "wms_keywordlist");
+                                &(map->web.metadata), "ows_keywordlist");
 
   // Window
   pszValue1 = (char*)CPLGetXMLValue(psGeneral,"Window.width",NULL);
@@ -940,27 +941,27 @@ int msLoadMapContextGeneral(mapObj *map, CPLXMLNode *psGeneral,
   // Abstract
   if( msGetMapContextXMLHashValue( psGeneral, 
                                    "Abstract", &(map->web.metadata), 
-                                   "wms_abstract") == MS_FAILURE )
+                                   "ows_abstract") == MS_FAILURE )
   {
       msGetMapContextXMLHashValue( psGeneral, "gml:description", 
-                                   &(map->web.metadata), "wms_abstract");
+                                   &(map->web.metadata), "ows_abstract");
   }
 
   // DataURL
   msGetMapContextXMLHashValueDecode(psGeneral, 
                                    "DataURL.OnlineResource.xlink:href",
-                                   &(map->web.metadata), "wms_dataurl");
+                                   &(map->web.metadata), "ows_dataurl");
 
   // LogoURL
   // The logourl have a width, height, format and an URL
   msLoadMapContextURLElements( CPLGetXMLNode(psGeneral, "LogoURL"), 
-                               &(map->web.metadata), "wms_logourl" );
+                               &(map->web.metadata), "ows_logourl" );
 
   // DescriptionURL
   // The descriptionurl have a width, height, format and an URL
   msLoadMapContextURLElements( CPLGetXMLNode(psGeneral, 
                                              "DescriptionURL"), 
-                               &(map->web.metadata), "wms_descriptionurl" );
+                               &(map->web.metadata), "ows_descriptionurl" );
 
   // Contact Info
   msLoadMapContextContactInfo( 
@@ -976,7 +977,18 @@ int msLoadMapContextGeneral(mapObj *map, CPLXMLNode *psGeneral,
 ** Load layer informations
 */
 int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer, 
-                                 int nVersion, char *filename)
+                                 int nVersion, char *filename,
+                                 // List of metadata names
+                                 const char *pszMName,
+                                 const char *pszMTitle,
+                                 const char *pszMAbstract,
+                                 const char *pszMDataURL,
+                                 const char *pszMMetadataURL,
+                                 const char *pszMOnlineResource,
+                                 const char *pszMServerVersion,
+                                 const char *pszMSRS,
+                                 const char *pszMFormat,
+                                 const char *pszMStyle)
 {
   char *pszProj=NULL;
   char *pszValue, *pszEncodedVal;
@@ -995,7 +1007,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   pszValue = (char*)CPLGetXMLValue(psLayer, "Name", NULL);
   if(pszValue != NULL)
   {
-      msInsertHashTable( &(layer->metadata), "wms_name", pszValue );
+      msInsertHashTable( &(layer->metadata), pszMName, pszValue );
 
       pszName = (char*)malloc(sizeof(char)*(strlen(pszValue)+10));
       sprintf(pszName, "l%d:%s", layer->index, pszValue);
@@ -1011,10 +1023,10 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   }
 
   if(msGetMapContextXMLHashValue(psLayer, "Title", &(layer->metadata), 
-                                 "wms_title") == MS_FAILURE)
+                                 pszMTitle) == MS_FAILURE)
   {
       if(msGetMapContextXMLHashValue(psLayer, "Server.title", 
-                          &(layer->metadata), "wms_title") == MS_FAILURE)
+                          &(layer->metadata), pszMTitle) == MS_FAILURE)
       {
           msDebug("Mandatory data Layer.Title missing in %s.", filename);
       }
@@ -1022,14 +1034,14 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
 
   // Abstract
   msGetMapContextXMLHashValue(psLayer, "Abstract", &(layer->metadata), 
-                              "wms_abstract");
+                              pszMAbstract);
 
   // DataURL
   if(!IS_OWS_CONTEXT(nVersion) && CONTEXT_VERSION(nVersion) <= OWS_0_1_4)
   {
       msGetMapContextXMLHashValueDecode(psLayer, 
                                         "DataURL.OnlineResource.xlink:href",
-                                        &(layer->metadata), "wms_dataurl");
+                                        &(layer->metadata), pszMDataURL);
   }
   else
   {
@@ -1037,14 +1049,14 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       // Width and height are not used, but they are included to
       // be consistent with the spec.
       msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "DataURL"), 
-                                           &(layer->metadata), "wms_dataurl" );
+                                           &(layer->metadata), pszMDataURL );
   }
 
   // The MetadataURL have a width, height, format and an URL
   // Width and height are not used, but they are included to
   // be consistent with the spec.
   msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "MetadataURL"), 
-                                       &(layer->metadata), "wms_metadataurl" );
+                                       &(layer->metadata), pszMMetadataURL );
 
   //
   // MinScale && MaxScale
@@ -1082,15 +1094,10 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       }
       else
       {
-          // Different metadata for wfs and wms
-          if(layer->connectiontype == MS_WFS)
-              msGetMapContextXMLHashValueDecode(psLayer, 
-                                    "Server.OnlineResource.xlink:href", 
-                                     &(layer->metadata), "wfs_onlineresource");
-          else
-              msGetMapContextXMLHashValueDecode(psLayer, 
-                                    "Server.OnlineResource.xlink:href", 
-                                     &(layer->metadata), "wms_onlineresource");
+          msGetMapContextXMLHashValueDecode(psLayer, 
+                                            "Server.OnlineResource.xlink:href",
+                                            &(layer->metadata), 
+                                            pszMOnlineResource);
               
           // Get the Server information
           psServer = CPLGetXMLNode(psLayer, "Server");
@@ -1111,12 +1118,11 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
               }
               if(pszEncodedVal != NULL)
               {
-                  if(layer->connectiontype == MS_WFS)
-                      msInsertHashTable( &(layer->metadata), 
-                                     "wfs_onlineresource_xml", pszEncodedVal );
-                  else
-                      msInsertHashTable( &(layer->metadata), 
-                                     "wms_onlineresource_xml", pszEncodedVal );
+                  pszValue = (char*)malloc(strlen(pszMOnlineResource)+5);
+                  sprintf(pszValue, "%s_xml", pszMOnlineResource);
+                  msInsertHashTable( &(layer->metadata), pszValue, 
+                                     pszEncodedVal );
+                  free(pszValue);
                   free(pszEncodedVal);
               }
           }
@@ -1137,7 +1143,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       {
           msGetMapContextXMLHashValueDecode(psLayer, 
                                           "Server.OnlineResource.xlink:href", 
-                                     &(layer->metadata), "wms_onlineresource");
+                                     &(layer->metadata), pszMOnlineResource);
       }
   }
   else
@@ -1154,7 +1160,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       else
       {
           msGetMapContextXMLHashValueDecode(psLayer, "Server.onlineResource", 
-                                     &(layer->metadata), "wms_onlineresource");
+                                     &(layer->metadata), pszMOnlineResource);
       }
   }
 
@@ -1164,7 +1170,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   if(IS_OWS_CONTEXT(nVersion) || CONTEXT_VERSION(nVersion) >= OWS_0_1_4)
   {
       if(msGetMapContextXMLHashValue(psLayer, "Server.version", 
-                      &(layer->metadata), "wms_server_version") == MS_FAILURE)
+                      &(layer->metadata), pszMServerVersion) == MS_FAILURE)
       {
           msSetError(MS_MAPCONTEXTERR, 
                      "Mandatory data Server.version missing in %s.",
@@ -1175,7 +1181,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   else
   {
       if(msGetMapContextXMLHashValue(psLayer, "Server.wmtver", 
-                      &(layer->metadata), "wms_server_version") == MS_FAILURE)
+                      &(layer->metadata), pszMServerVersion) == MS_FAILURE)
       {
           msSetError(MS_MAPCONTEXTERR, 
                      "Mandatory data Server.wmtver missing in %s.",
@@ -1186,9 +1192,9 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
 
   // Projection
   msLoadMapContextListInMetadata( psLayer, &(layer->metadata), 
-                                  "SRS", "wms_srs", " " );
+                                  "SRS", pszMSRS, " " );
 
-  pszHash = msLookupHashTable(&(layer->metadata), "wms_srs");
+  pszHash = msLookupHashTable(&(layer->metadata), pszMSRS);
   if(((pszHash == NULL) || (strcasecmp(pszHash, "") == 0)) && 
      layer->map->projection.numargs != 0)
   {
@@ -1198,7 +1204,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       {
           if(strncasecmp(pszProj, "AUTO:", 5) == 0)
           {
-              msInsertHashTable(&(layer->metadata),"wms_srs", pszProj);
+              msInsertHashTable(&(layer->metadata), pszMSRS, pszProj);
           }
           else
           {
@@ -1208,13 +1214,12 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
                   sprintf( pszProj, "EPSG:%s", 
                            layer->map->projection.args[
                                layer->map->projection.numargs-1]+10);
-                  msInsertHashTable(&(layer->metadata),"wms_srs", pszProj);
+                  msInsertHashTable(&(layer->metadata), pszMSRS, pszProj);
               }
               else
               {
-                  msDebug("Unable to set data for layer wms_srs from this"
-                          " value %s.", 
-                          pszProj);
+                  msDebug("Unable to set data for layer %s from this"
+                          " value %s.", pszMSRS, pszProj);
               }
           }
       }
@@ -1238,7 +1243,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
           psFormat != NULL; 
           psFormat = psFormat->psNext)
       {
-          msLoadMapContextLayerFormat(psFormat, layer);
+          msLoadMapContextLayerFormat(psFormat, layer, pszMFormat);
       }
                    
   } /* end FormatList parsing */
@@ -1263,7 +1268,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
           if(strcasecmp(psStyle->pszValue, "Style") == 0)
           {
               nStyle++;
-              msLoadMapContextLayerStyle(psStyle, layer, nStyle);
+              msLoadMapContextLayerStyle(psStyle, layer, nStyle, pszMStyle);
           }
       }
   }
@@ -1279,8 +1284,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
 int msLoadMapContextLayer(mapObj *map, CPLXMLNode *psLayer,int nVersion,
                           char *filename)
 {
-  CPLXMLNode *psFilter=NULL;
-  char *pszValue, *pszEncodedVal;
+  char *pszValue;
   layerObj *layer;
 
   // Init new layer
@@ -1294,26 +1298,18 @@ int msLoadMapContextLayer(mapObj *map, CPLXMLNode *psLayer,int nVersion,
   map->layerorder[map->numlayers] = map->numlayers;
   map->numlayers++;
 
-  if( msLoadMapContextAbstractView(layer, psLayer, nVersion, filename) == 
-      MS_FAILURE)
+  if( msLoadMapContextAbstractView(layer, psLayer, nVersion, filename,
+                                   "wms_name",
+                                   "wms_title",
+                                   "wms_abstract",
+                                   "wms_dataurl",
+                                   "wms_metadataurl",
+                                   "wms_onlineresource",
+                                   "wms_server_version",
+                                   "wms_srs",
+                                   "wms_format",
+                                   "wms_style") == MS_FAILURE)
       return MS_FAILURE;
-
-  // Get the Filter attribute
-  psFilter = CPLGetXMLNode(psLayer, "ogc:Filter");
-  if(psFilter != NULL && psFilter->psChild != NULL)
-  {
-      psFilter = psFilter->psChild;
-      while(psFilter->eType != CXT_Element)
-      {
-          psFilter = psFilter->psNext;
-      }
-      pszEncodedVal = msEncodeHTMLEntities( CPLSerializeXMLTree(psFilter) );
-      if(pszEncodedVal != NULL)
-      {
-          msInsertHashTable( &(layer->metadata), "wfs_filter", pszEncodedVal );
-          free(pszEncodedVal);
-      }
-  }
 
   // Get the queryable attribute
   pszValue = (char*)CPLGetXMLValue(psLayer, "queryable", "0");
@@ -1346,8 +1342,17 @@ int msLoadMapContextFeature(mapObj *map, CPLXMLNode *psLayer,int nVersion,
   map->layerorder[map->numlayers] = map->numlayers;
   map->numlayers++;
 
-  if( msLoadMapContextAbstractView(layer, psLayer, nVersion, filename) == 
-      MS_FAILURE )
+  if( msLoadMapContextAbstractView(layer, psLayer, nVersion, filename,
+                                   "wfs_typename",
+                                   "wfs_title",
+                                   "wfs_abstract",
+                                   "ows_dataurl",
+                                   "ows_metadataurl",
+                                   "wfs_onlineresource",
+                                   "wfs_version",
+                                   "wfs_srs", 
+                                   "ows_format",
+                                   "ows_style") == MS_FAILURE )
       return MS_FAILURE;
 
   // Get the Filter attribute
@@ -1594,6 +1599,637 @@ int msLoadMapContext(mapObj *map, char *filename)
 }
 
 
+//
+// Save functions
+//
+#if defined(USE_WMS_LYR) && defined(USE_OGR)
+
+/*
+** msWriteMapContextURLElement
+**
+** Write the XML online resource elements from a given metadata in a stream.
+*/
+int msWriteMapContextURLElements( FILE *stream, hashTableObj *metadata, 
+                                  const char *pszNodeName, 
+                                  const char *namespaces, 
+                                  const char *pszMetadata, 
+                                  const char *pszTabSpace)
+{
+  char *pszMetadataName;
+
+  if( stream == NULL || pszMetadata == NULL || pszNodeName == NULL || 
+      pszTabSpace == NULL )
+      return MS_FAILURE;
+
+  pszMetadataName = (char*) malloc( strlen(pszMetadata) + 10 );
+  sprintf( pszMetadataName, "%s_href", pszMetadata );
+
+  if( msOWSLookupMetadata(metadata, namespaces, pszMetadataName) == NULL )
+      return MS_FAILURE;
+
+  fprintf( stream, "%s<%s", pszTabSpace, pszNodeName);
+
+  sprintf( pszMetadataName, "%s_width", pszMetadata );
+  msOWSPrintEncodeMetadata(stream, metadata, 
+                           namespaces, pszMetadataName, OWS_NOERR,
+                           " width=\"%s\"", NULL);
+
+  sprintf( pszMetadataName, "%s_height", pszMetadata );
+  msOWSPrintEncodeMetadata(stream, metadata, 
+                           namespaces, pszMetadataName, OWS_NOERR,
+                           " height=\"%s\"", NULL);
+
+  sprintf( pszMetadataName, "%s_format", pszMetadata );
+  msOWSPrintEncodeMetadata(stream, metadata, 
+                           namespaces, pszMetadataName, OWS_NOERR,
+                           " format=\"%s\"", NULL);
+  fprintf( stream, ">\n");
+
+  sprintf( pszMetadataName, "%s_href", pszMetadata );
+  fprintf( stream, "%s  <OnlineResource xlink:type=\"simple\" ", pszTabSpace);
+  msOWSPrintEncodeMetadata(stream, metadata, 
+                           namespaces, pszMetadataName, OWS_NOERR,
+                           "xlink:href=\"%s\"/>\n",
+                           NULL);
+
+  fprintf( stream, "%s</%s>\n", pszTabSpace, pszNodeName);
+
+  return MS_SUCCESS;
+}
+
+/*
+** msWriteMapContextGeneral
+**
+** Save the general block in a given stream.
+*/
+int msWriteMapContextGeneral(FILE *stream, mapObj *map, int nVersion)
+{
+  char *pszValue;
+  const char *pszConst;
+
+  // set the General information
+  fprintf( stream, "  <General>\n" );
+
+  // Window
+  if( map->width != -1 || map->height != -1 )
+      fprintf( stream, "    <Window width=\"%d\" height=\"%d\"/>\n", 
+               map->width, map->height );
+
+  // Bounding box corners and spatial reference system
+  pszConst = msGetEPSGProj(&(map->projection), &(map->web.metadata), MS_TRUE);
+  fprintf( stream, 
+          "    <!-- Bounding box corners and spatial reference system -->\n" );
+  if(!pszConst || (strcasecmp(pszConst, "(null)") == 0))
+              fprintf(stream, "<!-- WARNING: Mandatory data 'projection' was missing in this context. -->\n");
+
+  fprintf( stream, "    <BoundingBox SRS=\"%s\" "
+           "minx=\"%f\" miny=\"%f\" maxx=\"%f\" maxy=\"%f\"/>\n", 
+           pszConst, map->extent.minx, map->extent.miny, 
+           map->extent.maxx, map->extent.maxy );
+
+  // Title, name
+  if( !IS_OWS_CONTEXT(nVersion) && 
+      CONTEXT_VERSION(nVersion) >= OWS_0_1_7 && 
+      CONTEXT_VERSION(nVersion) < OWS_1_0_0 )
+  {
+      fprintf( stream, "    <gml:name>%s</gml:name>\n", map->name );
+  }
+  else 
+  {
+      if ( !IS_OWS_CONTEXT(nVersion) && 
+           CONTEXT_VERSION(nVersion) < OWS_0_1_7)
+        fprintf( stream, "    <Name>%s</Name>\n", map->name );
+
+      fprintf( stream, "    <!-- Title of Context -->\n" );
+      msOWSPrintMetadata(stream, &(map->web.metadata), 
+                         "OMF", "title", OWS_WARN,
+                         "    <Title>%s</Title>\n", map->name);
+  }
+
+  //keyword
+  if ( IS_OWS_CONTEXT(nVersion) || CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
+  {
+      if (msOWSLookupMetadata(&(map->web.metadata),"OMF", "keywordlist")!=NULL)
+      {
+          char **papszKeywords;
+          int nKeywords, iKey;
+
+          pszValue = (char*)msOWSLookupMetadata(&(map->web.metadata), "OMF", 
+                                                "keywordlist");
+          papszKeywords = split(pszValue, ',', &nKeywords);
+          if(nKeywords > 0 && papszKeywords)
+          {
+              fprintf( stream, "    <KeywordList>\n");
+              for(iKey=0; iKey<nKeywords; iKey++)
+              { 
+                  fprintf( stream, "      <Keyword>%s</Keyword>\n", 
+                          papszKeywords[iKey]);
+              }
+              fprintf( stream, "    </KeywordList>\n");
+          }
+      }
+  }
+  else
+    msOWSPrintMetadataList(stream, &(map->web.metadata), "OMF", "keywordlist", 
+                           "    <Keywords>\n", "    </Keywords>\n",
+                           "      %s\n", NULL);
+
+  //abstract
+  if( !IS_OWS_CONTEXT(nVersion) && 
+      CONTEXT_VERSION(nVersion) >= OWS_0_1_7 && 
+      CONTEXT_VERSION(nVersion) < OWS_1_0_0 )
+  {
+      msOWSPrintMetadata(stream, &(map->web.metadata), 
+                         "OMF", "abstract", OWS_NOERR,
+                         "    <gml:description>%s</gml:description>\n", NULL);
+  }
+  else
+  {
+      msOWSPrintMetadata(stream, &(map->web.metadata), 
+                         "OMF", "abstract", OWS_NOERR,
+                         "    <Abstract>%s</Abstract>\n", NULL);
+  }
+
+  // DataURL
+  msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
+                           "OMF", "dataurl", OWS_NOERR,
+                "    <DataURL>\n      <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n    </DataURL>\n", NULL);
+
+  // LogoURL
+  // The LogoURL have a width, height, format and an URL
+  msWriteMapContextURLElements(stream, &(map->web.metadata), 
+                                   "LogoURL", "OMF", "logourl", "    ");
+  
+  // DescriptionURL
+  // The DescriptionURL have a width, height, format and an URL
+  // The metadata is structured like this: "width height format url"
+  if( IS_OWS_CONTEXT(nVersion) || CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
+  {
+      msWriteMapContextURLElements(stream, &(map->web.metadata), 
+                                   "DescriptionURL", 
+                                   "OMF", "descriptionurl", "    ");
+  }
+
+  // Contact Info
+  msOWSPrintContactInfo( stream, "    ", OWS_1_1_0, &(map->web.metadata) );
+
+  // Close General
+  fprintf( stream, "  </General>\n" );
+
+  return MS_SUCCESS;
+
+}
+
+/*
+** msWriteMapContextAbstractView
+**
+** Save the generic layer componnents in a given stream.
+*/
+int msWriteMapContextAbstractView(FILE *stream, layerObj *layer, 
+                                  const char *namespaces, int nVersion)
+{
+  char *pszValue, *pszChar,*pszSLD=NULL,*pszURL,*pszSLD2=NULL;
+  char *pszStyle, *pszCurrent, *pszStyleItem;
+  char *pszEncodedVal;
+
+  // 
+  // Server definition
+  //
+  if( IS_OWS_CONTEXT(nVersion) )
+  {
+      if(layer->connectiontype == MS_WFS)
+          msOWSPrintMetadata(stream, &(layer->metadata), 
+                             namespaces, "version", OWS_WARN,
+                             "      <Server service=\"OGC:WFS\" version=\"%s\" ",
+                             "1.1.0");
+      else if(layer->connectiontype == MS_WMS)
+          msOWSPrintMetadata(stream, &(layer->metadata), 
+                             namespaces, "server_version", OWS_WARN,
+                             "      <Server service=\"OGC:WMS\" version=\"%s\" ",
+                             "1.1.0");
+  }
+  else
+      msOWSPrintMetadata(stream, &(layer->metadata), 
+                         namespaces, "server_version", OWS_WARN,
+                         "      <Server service=\"WMS\" version=\"%s\" ",
+                         "1.1.0");
+  if(layer->name)
+      msOWSPrintMetadata(stream, &(layer->metadata), 
+                         namespaces, "title", OWS_NOERR, 
+                         "title=\"%s\">\n", layer->name);
+  else
+  {
+      msOWSPrintMetadata(stream, &(layer->metadata), 
+                         namespaces, "title", OWS_NOERR, 
+                         "title=\"%s\">\n", "");
+  }
+
+  // Get base url of the online resource to be the default value
+  pszValue = NULL;
+  if( IS_OWS_CONTEXT(nVersion) )
+  {
+      pszValue = (char*)msOWSLookupMetadata( &(layer->metadata), namespaces, 
+                                             "onlineresource_xml");
+      if(pszValue != NULL)
+      {
+          pszEncodedVal = strdup(pszValue);
+          msDecodeHTMLEntities(pszEncodedVal);
+          fprintf(stream, "%s", pszEncodedVal);
+          free(pszEncodedVal);
+          fprintf(stream, "      </Server>\n");
+      }
+  }
+
+  if(pszValue == NULL)
+  {
+      if(layer->connection)
+          pszValue = strdup( layer->connection );
+      else
+          pszValue = strdup( "" );
+      pszChar = strchr(pszValue, '?');
+      if( pszChar )
+          pszValue[pszChar - pszValue] = '\0';
+      if(msOWSPrintEncodeMetadata(stream, &(layer->metadata), 
+                                  namespaces, "onlineresource", OWS_WARN,
+                                  "        <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
+                                  pszValue) == OWS_WARN)
+          fprintf(stream, "<!-- onlineresource not set, using "
+                  "base URL , but probably not what you want -->\n");
+      fprintf(stream, "      </Server>\n");
+      if(pszValue)
+          free(pszValue);
+  }
+
+  //
+  // Layer information
+  //
+  if(layer->connectiontype == MS_WFS)
+      msOWSPrintMetadata(stream, &(layer->metadata), namespaces, "typename", 
+                         OWS_WARN, "      <Name>%s</Name>\n", layer->name);
+  else
+      msOWSPrintMetadata(stream, &(layer->metadata), namespaces, "name", 
+                         OWS_WARN, "      <Name>%s</Name>\n", layer->name);
+
+  msOWSPrintMetadata(stream, &(layer->metadata), 
+                     namespaces, "title", OWS_WARN, 
+                     "      <Title>%s</Title>\n", 
+                     layer->name);
+  msOWSPrintMetadata(stream, &(layer->metadata), 
+                     namespaces, "abstract", OWS_NOERR, 
+                     "      <Abstract>%s</Abstract>\n", 
+                     NULL);
+
+  //
+  // Layer min/max scale 
+  //
+  if( IS_OWS_CONTEXT(nVersion) )
+  {
+      if( layer->minscale > -1 )
+          fprintf(stream, "      <sld:MinScaleDenominator>%g"
+                  "</sld:MinScaleDenominator>\n", 
+                  layer->minscale);
+      if( layer->maxscale > -1 )
+          fprintf(stream, "      <sld:MaxScaleDenominator>%g"
+                  "</sld:MaxScaleDenominator>\n", 
+                  layer->maxscale);
+  }
+
+  // Layer SRS
+  pszValue = (char*)msGetEPSGProj(&(layer->projection), 
+                                  &(layer->metadata), MS_FALSE);
+  if(pszValue && (strcasecmp(pszValue, "(null)") != 0))
+      fprintf(stream, "      <SRS>%s</SRS>\n", pszValue);
+
+  // DataURL
+  if( !IS_OWS_CONTEXT(nVersion) && 
+      CONTEXT_VERSION(nVersion) <= OWS_0_1_4 )
+  {
+      msOWSPrintMetadata(stream, &(layer->metadata), 
+                         namespaces, "dataurl", OWS_NOERR, 
+                         "      <DataURL>%s</DataURL>\n", 
+                         NULL);
+  }
+  else
+  {
+      // The DataURL have a width, height, format and an URL
+      // The metadata will be structured like this: 
+      // "width height format url"
+      // Note: in version 0.1.7 the width and height are not included 
+      // in the Context file, but they are included in the metadata for
+      // for consistency with the URLType.
+      msWriteMapContextURLElements(stream, &(layer->metadata), "DataURL", 
+                                   namespaces , "dataurl", "      ");
+  }
+
+  // MetadataURL
+  // The MetadataURL have a width, height, format and an URL
+  // The metadata will be structured like this: 
+  // "width height format url"
+  pszURL = msLookupHashTable(&(layer->metadata),
+                             "wms_metadataurl_href");
+  if(pszURL != NULL)
+  {
+      msWriteMapContextURLElements(stream, &(layer->metadata), 
+                                   "MetadataURL", namespaces, "metadataurl", 
+                                   "      ");
+  }
+
+  // Format
+  if(msOWSLookupMetadata(&(layer->metadata), namespaces, "formatlist") == NULL)
+  {
+      pszURL = NULL;
+      if(layer->connection)
+          pszURL = strdup( layer->connection );
+      else
+          pszURL = strdup( "" );
+      pszValue = pszURL;
+      pszValue = strstr( pszValue, "FORMAT=" );
+      if( pszValue )
+      {
+          pszValue += 7;
+          pszChar = strchr(pszValue, '&');
+          if( pszChar )
+              pszValue[pszChar - pszValue] = '\0';
+          if(strcasecmp(pszValue, "") != 0)
+          {
+              fprintf( stream, "      <FormatList>\n");
+              fprintf(stream,"        <Format>%s</Format>\n",pszValue);
+              fprintf( stream, "      </FormatList>\n");
+          }
+      }
+      if(pszURL)
+          free(pszURL);
+  }
+  else
+  {
+      char **papszFormats;
+      int numFormats, nForm;
+
+      pszValue = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces, 
+                                     "formatlist");
+      pszCurrent = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces,
+                                              "format");
+
+      papszFormats = split(pszValue, ',', &numFormats);
+      if(numFormats > 0 && papszFormats)
+      {
+          fprintf( stream, "      <FormatList>\n");
+          for(nForm=0; nForm<numFormats; nForm++)
+          {
+              if(pszCurrent && (strcasecmp(papszFormats[nForm], 
+                                           pszCurrent) == 0))
+                  fprintf( stream,
+                           "        <Format current=\"1\">%s</Format>\n",
+                           papszFormats[nForm]);
+              else
+                  fprintf( stream, "        <Format>%s</Format>\n", 
+                           papszFormats[nForm]);
+          }
+          fprintf( stream, "      </FormatList>\n");
+      }
+      if(papszFormats)
+          msFreeCharArray(papszFormats, numFormats);
+  }
+
+  // Style
+  if(msOWSLookupMetadata(&(layer->metadata), namespaces, "stylelist") == NULL)
+  {
+      pszURL = "";
+      if(layer->connection)
+          pszURL = strdup( layer->connection );
+      else
+          pszURL = strdup( "" );
+      pszValue = pszURL;
+      pszValue = strstr( pszValue, "STYLES=" );
+      if( pszValue )
+      {
+          pszValue += 7;
+          pszChar = strchr(pszValue, '&');
+          if( pszChar )
+              pszValue[pszChar - pszValue] = '\0';
+
+          if(layer->connection)
+              pszSLD2 = strdup(layer->connection);
+          else
+              pszSLD2 = strdup( "" );
+          if(pszSLD2)
+              pszSLD = strstr(pszSLD2, "SLD=");
+          else
+              pszSLD = NULL;
+          if( pszSLD )
+          {
+              pszChar = strchr(pszSLD, '&');
+              if( pszChar )
+                  pszSLD[pszChar - pszSLD] = '\0';
+              pszSLD += 4;
+          }
+          if( (pszValue && (strcasecmp(pszValue, "") != 0)) || 
+              (pszSLD && (strcasecmp(pszSLD, "") != 0)))
+          {
+              fprintf( stream, "      <StyleList>\n");
+              fprintf( stream, "        <Style current=\"1\">\n");
+              if( pszValue && (strcasecmp(pszValue, "") != 0))
+              {
+                  fprintf(stream, "          <Name>%s</Name>\n", 
+                          pszValue);
+                  fprintf(stream,"          <Title>%s</Title>\n",
+                          pszValue);
+              }
+              if( pszSLD && (strcasecmp(pszSLD, "") != 0))
+              {
+                  pszEncodedVal = msEncodeHTMLEntities(pszSLD);
+                  fprintf( stream, "          <SLD>\n" );
+                  fprintf( stream, 
+                           "            <OnlineResource xlink:type=\"simple\" ");
+                  fprintf(stream,"xlink:href=\"%s\"/>", pszEncodedVal);
+                  fprintf( stream, "          </SLD>\n" );
+                  free(pszEncodedVal);
+              }
+              fprintf( stream, "        </Style>\n");
+              fprintf( stream, "      </StyleList>\n");
+          }
+          if(pszSLD2)
+          {
+              free(pszSLD2);
+              pszSLD2 = NULL;
+          }
+      }
+      if(pszURL)
+      {
+          free(pszURL);
+          pszURL = NULL;
+      }
+  }
+  else
+  {
+      pszValue = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces, 
+                                            "stylelist");
+      pszCurrent = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces, 
+                                              "style");
+      fprintf( stream, "      <StyleList>\n");
+      while(pszValue != NULL)
+      {
+          pszStyle = strdup(pszValue);
+          pszChar = strchr(pszStyle, ',');
+          if(pszChar != NULL)
+              pszStyle[pszChar - pszStyle] = '\0';
+          if( strcasecmp(pszStyle, "") != 0)
+          {
+              if(pszCurrent && (strcasecmp(pszStyle, pszCurrent) == 0))
+                  fprintf( stream,"        <Style current=\"1\">\n" );
+              else
+                  fprintf( stream, "        <Style>\n" );
+
+              pszStyleItem = (char*)malloc(strlen(pszStyle)+15);
+              sprintf(pszStyleItem, "style_%s_sld", pszStyle);
+              if(msOWSLookupMetadata( &(layer->metadata),namespaces, 
+                                      pszStyleItem ) != NULL)
+              {
+                  fprintf(stream, "          <SLD>\n");
+                  msOWSPrintEncodeMetadata(stream, 
+                                           &(layer->metadata),
+                                           namespaces, pszStyleItem, 
+                                           OWS_NOERR, 
+                                           "            <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
+                                           NULL);
+                  fprintf(stream, "          </SLD>\n");
+                  free(pszStyleItem);
+              }
+              else
+              {
+                  free(pszStyleItem);
+                  // Name
+                  fprintf(stream, "          <Name>%s</Name>\n", 
+                          pszStyle);
+                  pszStyleItem = (char*)malloc(strlen(pszStyle)+10+8);
+                  sprintf(pszStyleItem, "style_%s_title",pszStyle);
+                  // Title
+                  msOWSPrintMetadata(stream, &(layer->metadata), 
+                                     namespaces, pszStyleItem, OWS_NOERR, 
+                                     "          <Title>%s</Title>\n", 
+                                     NULL);
+                  free(pszStyleItem);
+
+                  // LegendURL
+                  pszStyleItem = (char*)malloc(strlen(pszStyle)+10+20);
+                  sprintf(pszStyleItem, "style_%s_legendurl_href",
+                          pszStyle);
+                  pszURL = (char*)msOWSLookupMetadata(&(layer->metadata), 
+                                                      namespaces, 
+                                                      pszStyleItem);
+                  if(pszURL != NULL)
+                  {
+                      sprintf(pszStyleItem, 
+                              "style_%s_legendurl",pszStyle);
+                      msWriteMapContextURLElements(stream, &(layer->metadata), 
+                                                   "LegendURL", namespaces, 
+                                                   pszStyleItem,
+                                                   "          ");
+                  }
+                  free(pszStyleItem);
+              }
+
+              fprintf( stream,"        </Style>\n" );
+          }
+          free(pszStyle);
+          pszValue = strchr(pszValue, ',');
+          if(pszValue)  
+              pszValue++;
+      }
+      fprintf( stream, "      </StyleList>\n");
+  }
+
+  return MS_SUCCESS;
+}
+
+/*
+** msWriteMapContextLayer
+**
+** Save the WMS layer componnents in a given stream.
+*/
+int msWriteMapContextLayer(FILE *stream, layerObj *layer, 
+                           const char *namespaces, int nVersion)
+{
+    int nValue;
+    char *pszValue, *pszDecodedVal;
+
+    if(layer->status == MS_OFF)
+        nValue = 1;
+    else
+        nValue = 0;
+
+    fprintf(stream, "    <Layer queryable=\"%d\" hidden=\"%d\">\n", 
+            msIsLayerQueryable(layer), nValue);
+
+    msWriteMapContextAbstractView(stream, layer, namespaces, nVersion);
+
+    if( IS_OWS_CONTEXT(nVersion) )
+    {
+        //
+        // Print the filter of the layer
+        //
+        pszValue = msLookupHashTable(&(layer->metadata), 
+                                     "wfs_filter");
+        if(pszValue != NULL)
+        {
+            pszDecodedVal = strdup(pszValue);
+            msDecodeHTMLEntities(pszDecodedVal);
+            fprintf(stream, "      <ogc:Filter>%s</ogc:Filter>\n", 
+                    pszDecodedVal);
+            free(pszDecodedVal);
+        }
+    }
+
+    fprintf(stream, "    </Layer>\n");
+
+    return MS_SUCCESS;
+}
+
+/*
+** msWriteMapContextFeature
+**
+** Save the WFS layer componnents in a given stream.
+*/
+int msWriteMapContextFeature(FILE *stream, layerObj *layer, 
+                             const char *namespaces, int nVersion)
+{
+    int nValue;
+    char *pszValue, *pszDecodedVal;
+
+    if(layer->status == MS_OFF)
+        nValue = 1;
+    else
+        nValue = 0;
+
+    fprintf(stream, "    <FeatureType hidden=\"%d\">\n", nValue);
+
+    msWriteMapContextAbstractView(stream, layer, namespaces, nVersion);
+
+    if( IS_OWS_CONTEXT(nVersion) )
+    {
+        //
+        // Print the filter of the layer
+        //
+        pszValue = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces, 
+                                              "filter");
+        if(pszValue != NULL)
+        {
+            pszDecodedVal = strdup(pszValue);
+            msDecodeHTMLEntities(pszDecodedVal);
+            fprintf(stream, "      <ogc:Filter>%s</ogc:Filter>\n", 
+                    pszDecodedVal);
+            free(pszDecodedVal);
+        }
+    }
+
+    fprintf(stream, "    </FeatureType>\n");
+
+    return MS_SUCCESS;
+}
+
+#endif
+
+
 /* msSaveMapContext()
 **
 ** Save a mapfile into the OGC Web Map Context format
@@ -1639,11 +2275,9 @@ int msSaveMapContext(mapObj *map, char *filename)
 int msWriteMapContext(mapObj *map, FILE *stream)
 {
 #if defined(USE_WMS_LYR) && defined(USE_OGR)
-  const char * version, *value;
-  char * tabspace=NULL, *pszValue, *pszChar,*pszSLD=NULL,*pszURL,*pszSLD2=NULL;
-  char *pszStyle, *pszCurrent, *pszStyleItem;
-  char *pszEncodedVal, *pszMetadata;
-  int i, nValue, nVersion=-1;
+  const char * version;
+  char *pszValue;
+  int i, nVersion=-1;
 
   // Decide which version we're going to return...
   version = msLookupHashTable(&(map->web.metadata), "ows_context_version");
@@ -1755,152 +2389,7 @@ int msWriteMapContext(mapObj *map, FILE *stream)
                msOWSGetSchemasLocation(map), version );
   }
 
-  // set the General information
-  fprintf( stream, "  <General>\n" );
-
-  // Window
-  if( map->width != -1 || map->height != -1 )
-      fprintf( stream, "    <Window width=\"%d\" height=\"%d\"/>\n", 
-               map->width, map->height );
-
-  // Bounding box corners and spatial reference system
-  if(tabspace)
-      free(tabspace);
-  tabspace = strdup("    ");
-  value = msGetEPSGProj(&(map->projection), &(map->web.metadata), MS_TRUE);
-  fprintf( stream, 
-          "%s<!-- Bounding box corners and spatial reference system -->\n", 
-           tabspace );
-  if(!value || (strcasecmp(value, "(null)") == 0))
-              fprintf(stream, "<!-- WARNING: Mandatory data 'projection' was missing in this context. -->\n");
-
-  fprintf( stream, "%s<BoundingBox SRS=\"%s\" minx=\"%f\" miny=\"%f\" maxx=\"%f\" maxy=\"%f\"/>\n", 
-           tabspace, value, map->extent.minx, map->extent.miny, 
-           map->extent.maxx, map->extent.maxy );
-
-  // Title, name
-  if( !IS_OWS_CONTEXT(nVersion) && 
-      CONTEXT_VERSION(nVersion) >= OWS_0_1_7 && 
-      CONTEXT_VERSION(nVersion) < OWS_1_0_0 )
-  {
-      fprintf( stream, "%s<gml:name>%s</gml:name>\n", tabspace, map->name );
-  }
-  else 
-  {
-      if ( !IS_OWS_CONTEXT(nVersion) && 
-           CONTEXT_VERSION(nVersion) < OWS_0_1_7)
-        fprintf( stream, "%s<Name>%s</Name>\n", tabspace, map->name );
-
-      fprintf( stream, "%s<!-- Title of Context -->\n", tabspace );
-      msOWSPrintMetadata(stream, &(map->web.metadata), 
-                         NULL, "wms_title", OWS_WARN,
-                         "    <Title>%s</Title>\n", map->name);
-  }
-
-  //keyword
-  if ( IS_OWS_CONTEXT(nVersion) || CONTEXT_VERSION(nVersion) >= OWS_1_0_0 )
-  {
-      if (msLookupHashTable(&(map->web.metadata),"wms_keywordlist")!=NULL)
-      {
-          char **papszKeywords;
-          int nKeywords, iKey;
-
-          pszValue = msLookupHashTable(&(map->web.metadata), 
-                                       "wms_keywordlist");
-          papszKeywords = split(pszValue, ',', &nKeywords);
-          if(nKeywords > 0 && papszKeywords)
-          {
-              fprintf( stream, "    <KeywordList>\n");
-              for(iKey=0; iKey<nKeywords; iKey++)
-              { 
-                  fprintf( stream, "      <Keyword>%s</Keyword>\n", 
-                          papszKeywords[iKey]);
-              }
-              fprintf( stream, "    </KeywordList>\n");
-          }
-      }
-  }
-  else
-    msOWSPrintMetadataList(stream, &(map->web.metadata), NULL, "wms_keywordlist", 
-                           "    <Keywords>\n", "    </Keywords>\n",
-                           "      %s\n", NULL);
-
-  //abstract
-  if( !IS_OWS_CONTEXT(nVersion) && 
-      CONTEXT_VERSION(nVersion) >= OWS_0_1_7 && 
-      CONTEXT_VERSION(nVersion) < OWS_1_0_0 )
-  {
-      msOWSPrintMetadata(stream, &(map->web.metadata), 
-                         NULL, "wms_abstract", OWS_NOERR,
-                         "    <gml:description>%s</gml:description>\n", NULL);
-  }
-  else
-  {
-      msOWSPrintMetadata(stream, &(map->web.metadata), 
-                         NULL, "wms_abstract", OWS_NOERR,
-                         "    <Abstract>%s</Abstract>\n", NULL);
-  }
-
-  // DataURL
-  msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                           NULL, "wms_dataurl", OWS_NOERR,
-                "    <DataURL>\n      <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n    </DataURL>\n", NULL);
-
-  // LogoURL
-  // The LogoURL have a width, height, format and an URL
-  pszURL = msLookupHashTable(&(map->web.metadata), "wms_logourl_href");
-  if(pszURL != NULL)
-  {
-      fprintf( stream, "    <LogoURL");
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_logourl_width", OWS_NOERR,
-                               " width=\"%s\"", NULL);
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_logourl_height", OWS_NOERR,
-                               " height=\"%s\"", NULL);
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_logourl_format", OWS_NOERR,
-                               " format=\"%s\"", NULL);
-      fprintf( stream, ">\n");
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_logourl_href", OWS_NOERR,
-          "      <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                               NULL);
-      fprintf( stream, "    </LogoURL>\n");
-  }
-
-  // DescriptionURL
-  // The DescriptionURL have a width, height, format and an URL
-  // The metadata is structured like this: "width height format url"
-  pszURL = msLookupHashTable(&(map->web.metadata), "wms_descriptionurl_href");
-  if( pszURL != NULL &&  
-      ( IS_OWS_CONTEXT(nVersion) || 
-        CONTEXT_VERSION(nVersion) >= OWS_1_0_0 ) )
-  {
-      fprintf( stream, "    <DescriptionURL");
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata),
-                               NULL, "wms_descriptionurl_width", OWS_NOERR, 
-                               " width=\"%s\"", NULL);
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_descriptionurl_height", OWS_NOERR, 
-                               " height=\"%s\"", NULL);
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_descriptionurl_format", OWS_NOERR,
-                               " format=\"%s\"", NULL);
-      fprintf( stream, ">\n");
-      msOWSPrintEncodeMetadata(stream, &(map->web.metadata), 
-                               NULL, "wms_descriptionurl_href", OWS_NOERR,
-          "      <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                               NULL);
-      fprintf( stream, "    </DescriptionURL>\n");
-  }
-
-  // Contact Info
-  msOWSPrintContactInfo( stream, tabspace, OWS_1_1_0, &(map->web.metadata) );
-
-  // Close General
-  fprintf( stream, "  </General>\n" );
-  free(tabspace);
+  msWriteMapContextGeneral(stream, map, nVersion);
 
   // Set the layer list
   if( IS_OWS_CONTEXT(nVersion) )
@@ -1915,460 +2404,13 @@ int msWriteMapContext(mapObj *map, FILE *stream)
           ( map->layers[i].connectiontype == MS_WFS && 
             IS_OWS_CONTEXT(nVersion) ) )
       {
-          if(map->layers[i].status == MS_OFF)
-              nValue = 1;
+          if(map->layers[i].connectiontype == MS_WFS && 
+            IS_OWS_CONTEXT(nVersion))
+              msWriteMapContextFeature(stream, &(map->layers[i]), "FO", 
+                                       nVersion);
           else
-              nValue = 0;
-          if( IS_OWS_CONTEXT(nVersion) )
-          {
-              if( map->layers[i].connectiontype == MS_WMS )
-                  fprintf(stream, 
-                          "    <Layer queryable=\"%d\" hidden=\"%d\">\n", 
-                          msIsLayerQueryable(&(map->layers[i])), nValue);
-              else if( map->layers[i].connectiontype == MS_WFS )
-                  fprintf(stream, "    <FeatureType hidden=\"%d\">\n", nValue);
-          }
-          else
-              fprintf(stream, "    <Layer queryable=\"%d\" hidden=\"%d\">\n", 
-                      msIsLayerQueryable(&(map->layers[i])), nValue);
-
-          // 
-          // Server definition
-          //
-          if( IS_OWS_CONTEXT(nVersion) )
-          {
-              if(map->layers[i].connectiontype == MS_WFS)
-                  msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                           NULL, "wms_server_version", OWS_WARN,
-                           "      <Server service=\"OGC:WFS\" version=\"%s\" ",
-                           "1.1.0");
-              else if(map->layers[i].connectiontype == MS_WMS)
-                  msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                           NULL, "wms_server_version", OWS_WARN,
-                           "      <Server service=\"OGC:WMS\" version=\"%s\" ",
-                           "1.1.0");
-          }
-          else
-              msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                             NULL, "wms_server_version", OWS_WARN,
-                             "      <Server service=\"WMS\" version=\"%s\" ",
-                             "1.1.0");
-          if(map->layers[i].name)
-              msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                                 NULL, "wms_title", OWS_NOERR, 
-                                 "title=\"%s\">\n", map->layers[i].name);
-          else
-          {
-              msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                                 NULL, "wms_title", OWS_NOERR, 
-                                 "title=\"%s\">\n", "");
-          }
-
-          // Get base url of the online resource to be the default value
-          pszValue = NULL;
-          if( IS_OWS_CONTEXT(nVersion) )
-          {
-              if(map->layers[i].connectiontype == MS_WFS)
-                  pszValue = msLookupHashTable( &(map->layers[i].metadata),
-                                                "wfs_onlineresource_xml");
-              else
-                  pszValue = msLookupHashTable( &(map->layers[i].metadata),
-                                                "wms_onlineresource_xml");
-              if(pszValue != NULL)
-              {
-                  pszEncodedVal = strdup(pszValue);
-                  msDecodeHTMLEntities(pszEncodedVal);
-                  fprintf(stream, "%s", pszEncodedVal);
-                  free(pszEncodedVal);
-              }
-              fprintf(stream, "      </Server>\n");
-          }
-
-          if(pszValue == NULL)
-          {
-              if( IS_OWS_CONTEXT(nVersion) && 
-                  map->layers[i].connectiontype == MS_WFS)
-                  pszMetadata = strdup("wfs_onlineresource");
-              else
-                  pszMetadata = strdup("wms_onlineresource");
-
-              if(map->layers[i].connection)
-                  pszValue = strdup( map->layers[i].connection );
-              else
-                  pszValue = strdup( "" );
-              pszChar = strchr(pszValue, '?');
-              if( pszChar )
-                  pszValue[pszChar - pszValue] = '\0';
-              if(msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                          NULL, pszMetadata, OWS_WARN,
-         "        <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                                          pszValue) == OWS_WARN)
-                  fprintf(stream, "<!-- %s not set, using "
-                          "base URL , but probably not what you want -->\n",
-                          pszMetadata);
-              fprintf(stream, "      </Server>\n");
-              if(pszValue)
-                  free(pszValue);
-              if(pszMetadata)
-                  free(pszMetadata);
-          }
-
-          //
-          // Layer information
-          //
-          msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                             NULL, "wms_name", OWS_WARN, 
-                             "      <Name>%s</Name>\n", 
-                             map->layers[i].name);
-          msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                             NULL, "wms_title", OWS_WARN, 
-                             "      <Title>%s</Title>\n", 
-                             map->layers[i].name);
-          msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                             NULL, "wms_abstract", OWS_NOERR, 
-                             "      <Abstract>%s</Abstract>\n", 
-                             NULL);
-
-          //
-          // Layer min/max scale 
-          //
-          if( IS_OWS_CONTEXT(nVersion) )
-          {
-              if( map->layers[i].minscale > -1 )
-                  fprintf(stream, "      <sld:MinScaleDenominator>%g"
-                          "</sld:MinScaleDenominator>\n", 
-                          map->layers[i].minscale);
-              if( map->layers[i].maxscale > -1 )
-                  fprintf(stream, "      <sld:MaxScaleDenominator>%g"
-                          "</sld:MaxScaleDenominator>\n", 
-                          map->layers[i].maxscale);
-          }
-
-          // Layer SRS
-          pszValue = (char*)msGetEPSGProj(&(map->layers[i].projection), 
-                                          &(map->layers[i].metadata), MS_FALSE);
-          if(pszValue && (strcasecmp(pszValue, "(null)") != 0))
-              fprintf(stream, "      <SRS>%s</SRS>\n", pszValue);
-
-          // DataURL
-          if( !IS_OWS_CONTEXT(nVersion) && 
-              CONTEXT_VERSION(nVersion) <= OWS_0_1_4 )
-          {
-              msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                                 NULL, "wms_dataurl", OWS_NOERR, 
-                                 "      <DataURL>%s</DataURL>\n", 
-                                 NULL);
-          }
-          else
-          {
-              // The DataURL have a width, height, format and an URL
-              // The metadata will be structured like this: 
-              // "width height format url"
-              // Note: in version 0.1.7 the width and height are not included 
-              // in the Context file, but they are included in the metadata for
-              // for consistency with the URLType.
-              pszURL = msLookupHashTable( &(map->layers[i].metadata),
-                                          "wms_dataurl_href");
-              if(pszURL != NULL)
-              {
-                  fprintf( stream, "      <DataURL");
-                  msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                           NULL, "wms_dataurl_width", OWS_NOERR,
-                                           " width=\"%s\"", NULL);
-                  msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                           NULL, "wms_dataurl_height", OWS_NOERR,
-                                           " height=\"%s\"", NULL);
-                  msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                           NULL, "wms_dataurl_format", OWS_NOERR,
-                                           " format=\"%s\"", NULL);
-                  fprintf( stream, ">\n");
-                  msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                           NULL, "wms_dataurl_href", OWS_NOERR,
-                                           "        <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                                           NULL);
-                  fprintf( stream, "      </DataURL>\n");
-              }
-          }
-
-          // MetadataURL
-          // The MetadataURL have a width, height, format and an URL
-          // The metadata will be structured like this: 
-          // "width height format url"
-          pszURL = msLookupHashTable(&(map->layers[i].metadata),
-                                     "wms_metadataurl_href");
-          if(pszURL != NULL)
-          {
-              fprintf( stream, "      <MetadataURL");
-              msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                       NULL, "wms_metadataurl_width", OWS_NOERR,
-                                       " width=\"%s\"", NULL);
-              msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                       NULL, "wms_metadataurl_height", OWS_NOERR,
-                                       " height=\"%s\"", NULL);
-              msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                       NULL, "wms_metadataurl_format", OWS_NOERR,
-                                       " format=\"%s\"", NULL);
-              fprintf( stream, ">\n");
-              msOWSPrintEncodeMetadata(stream, &(map->layers[i].metadata), 
-                                       NULL, "wms_metadataurl_href", OWS_NOERR,
-                                       "        <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                                       NULL);
-              fprintf( stream, "      </MetadataURL>\n");
-          }
-
-          // Format
-          if(msLookupHashTable(&(map->layers[i].metadata),"wms_formatlist")==NULL)
-          {
-              pszURL = NULL;
-              if(map->layers[i].connection)
-                  pszURL = strdup( map->layers[i].connection );
-              else
-                  pszURL = strdup( "" );
-              pszValue = pszURL;
-              pszValue = strstr( pszValue, "FORMAT=" );
-              if( pszValue )
-              {
-                  pszValue += 7;
-                  pszChar = strchr(pszValue, '&');
-                  if( pszChar )
-                      pszValue[pszChar - pszValue] = '\0';
-                  if(strcasecmp(pszValue, "") != 0)
-                  {
-                      fprintf( stream, "      <FormatList>\n");
-                      fprintf(stream,"        <Format>%s</Format>\n",pszValue);
-                      fprintf( stream, "      </FormatList>\n");
-                  }
-              }
-              if(pszURL)
-                  free(pszURL);
-          }
-          else
-          {
-              char **papszFormats;
-              int numFormats, nForm;
-
-              pszValue = msLookupHashTable(&(map->layers[i].metadata), 
-                                           "wms_formatlist");
-              pszCurrent = msLookupHashTable(&(map->layers[i].metadata), 
-                                             "wms_format");
-
-              papszFormats = split(pszValue, ',', &numFormats);
-              if(numFormats > 0 && papszFormats)
-              {
-                  fprintf( stream, "      <FormatList>\n");
-                  for(nForm=0; nForm<numFormats; nForm++)
-                  {
-                      if(pszCurrent && (strcasecmp(papszFormats[nForm], 
-                                                   pszCurrent) == 0))
-                          fprintf( stream,
-                                 "        <Format current=\"1\">%s</Format>\n",
-                                   papszFormats[nForm]);
-                      else
-                          fprintf( stream, "        <Format>%s</Format>\n", 
-                                   papszFormats[nForm]);
-                  }
-                  fprintf( stream, "      </FormatList>\n");
-              }
-              if(papszFormats)
-                  msFreeCharArray(papszFormats, numFormats);
-          }
-
-          // Style
-          if(msLookupHashTable(&(map->layers[i].metadata),"wms_stylelist") ==NULL)
-          {
-              pszURL = "";
-              if(map->layers[i].connection)
-                  pszURL = strdup( map->layers[i].connection );
-              else
-                  pszURL = strdup( "" );
-              pszValue = pszURL;
-              pszValue = strstr( pszValue, "STYLES=" );
-              if( pszValue )
-              {
-                  pszValue += 7;
-                  pszChar = strchr(pszValue, '&');
-                  if( pszChar )
-                      pszValue[pszChar - pszValue] = '\0';
-
-                  if(map->layers[i].connection)
-                      pszSLD2 = strdup(map->layers[i].connection);
-                  else
-                      pszSLD2 = strdup( "" );
-                  if(pszSLD2)
-                      pszSLD = strstr(pszSLD2, "SLD=");
-                  else
-                      pszSLD = NULL;
-                  if( pszSLD )
-                  {
-                      pszChar = strchr(pszSLD, '&');
-                      if( pszChar )
-                          pszSLD[pszChar - pszSLD] = '\0';
-                      pszSLD += 4;
-                  }
-                  if( (pszValue && (strcasecmp(pszValue, "") != 0)) || 
-                      (pszSLD && (strcasecmp(pszSLD, "") != 0)))
-                  {
-                      fprintf( stream, "      <StyleList>\n");
-                      fprintf( stream, "        <Style current=\"1\">\n");
-                      if( pszValue && (strcasecmp(pszValue, "") != 0))
-                      {
-                          fprintf(stream, "          <Name>%s</Name>\n", 
-                                  pszValue);
-                          fprintf(stream,"          <Title>%s</Title>\n",
-                                  pszValue);
-                      }
-                      if( pszSLD && (strcasecmp(pszSLD, "") != 0))
-                      {
-                          pszEncodedVal = msEncodeHTMLEntities(pszSLD);
-                          fprintf( stream, "          <SLD>\n" );
-                          fprintf( stream, 
-                         "            <OnlineResource xlink:type=\"simple\" ");
-                          fprintf(stream,"xlink:href=\"%s\"/>", pszEncodedVal);
-                          fprintf( stream, "          </SLD>\n" );
-                          free(pszEncodedVal);
-                      }
-                      fprintf( stream, "        </Style>\n");
-                      fprintf( stream, "      </StyleList>\n");
-                  }
-                  if(pszSLD2)
-                  {
-                      free(pszSLD2);
-                      pszSLD2 = NULL;
-                  }
-              }
-              if(pszURL)
-              {
-                  free(pszURL);
-                  pszURL = NULL;
-              }
-          }
-          else
-          {
-              pszValue = msLookupHashTable(&(map->layers[i].metadata), 
-                                           "wms_stylelist");
-              pszCurrent = msLookupHashTable(&(map->layers[i].metadata), 
-                                             "wms_style");
-              fprintf( stream, "      <StyleList>\n");
-              while(pszValue != NULL)
-              {
-                  pszStyle = strdup(pszValue);
-                  pszChar = strchr(pszStyle, ',');
-                  if(pszChar != NULL)
-                      pszStyle[pszChar - pszStyle] = '\0';
-                  if( strcasecmp(pszStyle, "") != 0)
-                  {
-                      if(pszCurrent && (strcasecmp(pszStyle, pszCurrent) == 0))
-                          fprintf( stream,"        <Style current=\"1\">\n" );
-                      else
-                          fprintf( stream, "        <Style>\n" );
-
-                      pszStyleItem = (char*)malloc(strlen(pszStyle)+10+5);
-                      sprintf(pszStyleItem, "wms_style_%s_sld", pszStyle);
-                      if(msLookupHashTable(&(map->layers[i].metadata),
-                                           pszStyleItem) != NULL)
-                      {
-                          fprintf(stream, "          <SLD>\n");
-                          msOWSPrintEncodeMetadata(stream, 
-                                                   &(map->layers[i].metadata),
-                                                   NULL, pszStyleItem, 
-                                                   OWS_NOERR, 
-     "            <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                                                   NULL);
-                          fprintf(stream, "          </SLD>\n");
-                          free(pszStyleItem);
-                      }
-                      else
-                      {
-                          free(pszStyleItem);
-                          // Name
-                          fprintf(stream, "          <Name>%s</Name>\n", 
-                                  pszStyle);
-                          pszStyleItem = (char*)malloc(strlen(pszStyle)+10+8);
-                          sprintf(pszStyleItem, "wms_style_%s_title",pszStyle);
-                          // Title
-                          msOWSPrintMetadata(stream, &(map->layers[i].metadata), 
-                                             NULL, pszStyleItem, OWS_NOERR, 
-                                             "          <Title>%s</Title>\n", 
-                                             NULL);
-                          free(pszStyleItem);
-
-                          // LegendURL
-                          pszStyleItem = (char*)malloc(strlen(pszStyle)+10+20);
-                          sprintf(pszStyleItem, "wms_style_%s_legendurl_href",
-                                  pszStyle);
-                          pszURL = msLookupHashTable(&(map->layers[i].metadata), 
-                                                     pszStyleItem);
-                          if(pszURL != NULL)
-                          {
-                              fprintf( stream, "          <LegendURL");
-                              sprintf(pszStyleItem, 
-                                      "wms_style_%s_legendurl_width",pszStyle);
-                              msOWSPrintEncodeMetadata(stream, 
-                                                       &(map->layers[i].metadata),
-                                                       NULL, pszStyleItem,
-                                                       OWS_NOERR,
-                                                       " width=\"%s\"", NULL);
-                              sprintf(pszStyleItem, 
-                                     "wms_style_%s_legendurl_height",pszStyle);
-                              msOWSPrintEncodeMetadata(stream, 
-                                                       &(map->layers[i].metadata),
-                                                       NULL, pszStyleItem,
-                                                       OWS_NOERR,
-                                                       " height=\"%s\"", NULL);
-                              sprintf(pszStyleItem, 
-                                     "wms_style_%s_legendurl_format",pszStyle);
-                              msOWSPrintEncodeMetadata(stream, 
-                                                       &(map->layers[i].metadata),
-                                                       NULL, pszStyleItem,
-                                                       OWS_NOERR,
-                                                       " format=\"%s\"", NULL);
-                              fprintf( stream, ">\n");
-                              sprintf(pszStyleItem, 
-                                     "wms_style_%s_legendurl_href", pszStyle);
-                              msOWSPrintEncodeMetadata(stream, 
-                                                       &(map->layers[i].metadata),
-                                                       NULL, pszStyleItem,
-                                                       OWS_NOERR,
-                                                       "            <OnlineResource xlink:type=\"simple\" xlink:href=\"%s\"/>\n",
-                                                       NULL);
-                              fprintf( stream, "          </LegendURL>\n");
-                          }
-                          free(pszStyleItem);
-                      }
-
-                      fprintf( stream,"        </Style>\n" );
-                  }
-                  free(pszStyle);
-                  pszValue = strchr(pszValue, ',');
-                  if(pszValue)  
-                      pszValue++;
-              }
-              fprintf( stream, "      </StyleList>\n");
-          }
-
-          if( IS_OWS_CONTEXT(nVersion) )
-          {
-              //
-              // Print the filter of the layer
-              //
-              pszValue = msLookupHashTable(&(map->layers[i].metadata), 
-                                           "wfs_filter");
-              if(pszValue != NULL)
-              {
-                  pszEncodedVal = strdup(pszValue);
-                  msDecodeHTMLEntities(pszEncodedVal);
-                  fprintf(stream, "      <ogc:Filter>%s</ogc:Filter>\n", 
-                          pszEncodedVal);
-                  free(pszEncodedVal);
-              }
-
-              if( map->layers[i].connectiontype == MS_WMS )
-                  fprintf(stream, "    </Layer>\n");
-              else if( map->layers[i].connectiontype == MS_WFS )
-                  fprintf(stream, "    </FeatureType>\n");
-          }
-          else
-              fprintf(stream, "    </Layer>\n");
+              msWriteMapContextLayer(stream, &(map->layers[i]), "MO", 
+                                     nVersion);
       }
   }
 
