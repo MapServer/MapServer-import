@@ -15,13 +15,13 @@
 				</address>
 			</affiliation>
 		</author>
-		<date>2001-11-05</date>
+		<date>2002-03-01</date>
 		<abstract>
 			<!-- a short description of the contents of the doc -->
 			<para>
                  This document describes the procedures for setting up an OGC compliant Web Map Server (WMS) through 				  the use of MapServer v3.5.  
                </para>
-			<para>Last Updated: 11/05/2001</para>
+			<para>Last Updated: 03/01/2002</para>
 		</abstract>
 	</articleinfo>
 	<sect1 id="intro">
@@ -79,9 +79,26 @@
 				<listitem>
 					<para>
 						<emphasis>GetFeatureInfo:</emphasis> return info about feature(s) at a query (mouse click) 
-     					location.  MapServer supports this and will return either a text response
-     					with attribute information, or the selected feature(s) in GML format.
+     					location.  MapServer supports 3 types of responses to this request:
 					</para>
+					<orderedlist>
+						<listitem>
+							<para>
+							    Text/plain output with attribute info.
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+							    Text/html output using MapServer query templates specified in the CLASS template parameter.
+							    The MIME type returned by the Class templates defaults to text/html and can be controlled using the 								    metadata  <link linkend="mime_type">"wms_feature_info_mime_type"</link>.
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Gml features.
+							</para>
+						</listitem>
+					</orderedlist>
 				</listitem>
 				<listitem>
 					<para>
@@ -665,6 +682,58 @@
 						</listitem>
 					</itemizedlist>
 				</sect4>
+				<sect4 id="encoding">
+					<title>wms_encoding</title>
+					<itemizedlist>
+						<listitem>
+							<para>
+								<emphasis>WMS TAG Name:</emphasis> Encoding
+								</para>
+						</listitem>
+						<listitem>
+							<para>
+								<emphasis>Description:</emphasis> Optional XML capabilities encoding type.  The default is 
+								ISO-8859-1.
+							</para>
+						</listitem>
+					</itemizedlist>
+				</sect4>
+				<sect4 id="mime_type">
+					<title>wms_feature_info_mime_type</title>
+					<itemizedlist>
+						<listitem>
+							<para>
+								<emphasis>WMS TAG Name:</emphasis> Feature_info_mime_type
+								</para>
+						</listitem>
+						<listitem>
+							<para>
+								<emphasis>Description:</emphasis>
+								<itemizedlist>
+									<listitem>
+										<para>
+											If not specified, then MapServer CAN process "text/html" MIME type if
+											the GetFeatureInfo parameter INFO_FORMAT is set. In this case, the layer 
+											template is returned.
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											If set to "NONE", then MapServer will not process MIME type
+											other than the default MIME type.
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											If set to something (except "NONE"), then MapServer will use the
+											specified MIME type (whatever it is) if the GetFeatureInfo parameter INFO_FORMAT is set as well. 											In this case, the layer template is returned.
+										</para>
+									</listitem>
+								</itemizedlist>
+							</para>
+						</listitem>
+					</itemizedlist>
+				</sect4>
 				<sect4 id="fees">
 					<title>wms_fees</title>
 					<itemizedlist>
@@ -946,9 +1015,7 @@
 		<sect2 id="feedback">
 			<title>Feedback</title>
 			<para>
-    				This is a new document for a new project; input is appreciated.  Send any
-    				comments or suggestions to the MapServer Documentation Coordinator at
-    				<email>mdp@lists.gis.umn.edu</email>.
+    				Send any comments or suggestions to the author.
    			</para>
 		</sect2>
 	</sect1>
