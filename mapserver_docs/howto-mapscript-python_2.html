@@ -1,0 +1,812 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>The Python/MapScript HOWTO</title><meta name="generator" content="DocBook XSL Stylesheets V1.50.0"><script xmlns="http://www.w3.org/TR/xhtml1/transitional" language="javascript" src="../javascript/include.js"></script></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF" marginheight="0" marginwidth="0" style="&#34;margin:0px&#34;"><script xmlns="http://www.w3.org/TR/xhtml1/transitional" language="javascript">
+  header("doc");
+  comment();
+  </script><div class="article"><div class="titlepage"><div><h1 class="title"><a name="d45e1"></a>The Python/MapScript HOWTO</h1></div><div><div class="author"><h3 class="author">Michael Schulz</h3><div class="affiliation"><span class="orgname">in medias res GmbH<br></span><span class="orgdiv"><br></span><div class="address"><p>
+            <tt>&lt;<a href="mailto:mschulz@webgis.de">mschulz@webgis.de</a>&gt;</tt>
+        </p></div></div></div></div><div><div class="author"><h3 class="author">Grit Schuster</h3><div class="affiliation"><span class="orgname">in medias res GmbH<br></span><span class="orgdiv"><br></span><div class="address"><p>
+            <tt>&lt;<a href="mailto:gschuster@webgis.de">gschuster@webgis.de</a>&gt;</tt>
+        </p></div></div></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+    This document tries to give an overview of the Python/MapScript Objects and their syntax. It is a start of the documentation for Python/MapScript. Information given here refers to MapServer version 3.6.
+    <span class="emphasis"><em>
+    A basic knowledge of mapserver, map definition files, Python and HTML is recommended.
+    </em></span>
+    Example lines are in plain roman style.  
+    </p><p>Last Updated:  24-2-2003</p></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><a href="#intro">Introduction</a></dt><dt><a href="#installation">Installation</a></dt><dd><dl><dt><a href="#pre">Prerequisites</a></dt><dt><a href="#build">Building the extension</a></dt></dl></dd><dt><a href="#reference">List of Classes and Functions</a></dt><dd><dl><dt><a href="#d45e144">Information</a></dt><dt><a href="#constants">Constants</a></dt><dt><a href="#mapobj">mapObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#layerobj">layerObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#class">classObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#image">imageObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#label">labelObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#labelcache">labelCacheObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#labelcachemember">labelCacheMemberObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#markercachemember">markerCacheMemberObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#web">webObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#refMap">referenceMapObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#querymap">queryMapObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt></dl></dd><dt><a href="#colorObj">colorObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#pointObj">pointObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#lineObj">lineObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#shape">shapeObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#shapefile">shapefileObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#rectObj">rectObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#itemObj">itemObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#resultcache">resultCacheObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#resultcachemember">resultCacheMemberObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#projObj">projectionObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#scalebarobj">scalebarObj Class</a></dt><dd><dl><dt><a href="#scaleBarObj Class">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#legendobj">legendObj Class</a></dt><dd><dl><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#attribute">Attributes</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd><dt><a href="#DBF">DBFInfo object</a></dt><dd><dl><dt><a href="#intro">Information</a></dt><dt><a href="#Constructor">Constructors</a></dt><dt><a href="#Methods">Methods</a></dt></dl></dd></dl></dd><dt><a href="#docinfo">About This Document</a></dt><dd><dl><dt><a href="#copyright">Copyright Information</a></dt><dt><a href="#disclaimer">Disclaimer</a></dt><dt><a href="#feedback">Feedback</a></dt></dl></dd></dl></div><div class="sect1"><div class="titlepage"><div><h2 class="title"><a name="intro"></a>Introduction</h2></div></div><p>
+   <span class="emphasis"><em>
+    In this HOWTO you will find information and examples how to install and use Python/MapScript. Since no documentation
+previously existed this document will surely not cover all topics, it should be regarded as a starting point for people
+who want to work with Python/MapScript.
+   </em></span>
+  </p><p>
+    This document assumes some previous knowledge or experience, especially with
+    the following:
+  </p><div class="itemizedlist"><ul type="disc"><li><p>
+        Familiarity with fundamental aspects of managing the
+        MapServer software and the web server.
+      </p></li><li><p>
+        Familiarity with the scripting language <a href="http://www.python.org" target="_top">Python</a>.
+      </p></li><li><p>
+        The MapServer/MapScript software is installed and functioning on a web server.
+      </p></li></ul></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title"><a name="installation"></a>Installation</h2></div></div><p>If you're not experienced with Python, you should read the
+tutorial available in <a href="http://www.python.org" target="_top">http://www.python.org</a> or another equivalent tutorial, since the language has some tricks that are not quite intuitive, and that should remove some of the pain of getting the extension to work. The following instructions are Linux/Unix specific.</p><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="pre"></a>Prerequisites</h3></div></div><div class="itemizedlist"><ul type="disc"><li><a href="http://mapserver.gis.umn.edu/doc36/unix-install-howto.html" target="_top">MapServer</a></li><li><a href="http://www.python.org/download" target="_top">here</a></li><li><a href="http://www.swig.org" target="_top">http://www.swig.org</a></li></ul></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="build"></a>Building the extension</h3></div></div><p>There are two ways to build the extension. If you like tasks and challenges go and swig,
+compile and install all the stuff by hand. Another way is to use an install script that Norman Vine
+made, which makes things much easier. It is available from <a href="http://www.vso.cape.com/~nhv/files/python/mapscript/setup.py." target="_top">http://www.vso.cape.com/~nhv/files/python/mapscript/setup.py</a>. Copy this file to <tt>$MAPSERV_HOME/mapscript/python</tt>.
+     <p>Changes on setup.py 
+    
+     activate swig_cmd "-shadow" and disable "-DWIN32"
+     enable all needed macros and libraries
+     </p>
+     </p><p>In the same directory you will find a link to <tt>mapscript.i</tt>. This
+is the interface file for SWIG. Make sure that this file has the section
+<tt>SWIGPYTHON</tt> defined as follows:
+     <pre class="programlisting">
+#ifdef SWIGPYTHON
+// For Python, errors reported via the ms_error structure are translated
+// into RuntimeError exceptions. (Chris Chamberlin &lt;cdc@aracnet.com&gt;)
+
+%{
+  static void _raise_ms_exception(void) {
+    char errbuf[256];
+    errorObj *ms_error = msGetErrorObj();
+    snprintf(errbuf, 255, "%s: %s %s\n", ms_error-&gt;routine, msGetErrorString(ms_error-&gt;code), ms_error-&gt;message);
+    _SWIG_exception(SWIG_RuntimeError, errbuf);
+  }
+
+  #define raise_ms_exception() { _raise_ms_exception(); return NULL; }
+%}
+
+%except {
+  $function
+    errorObj *ms_error = msGetErrorObj();
+    if ( (ms_error-&gt;code != MS_NOERR) &amp;&amp; (ms_error-&gt;code != -1) )
+      raise_ms_exception();
+}
+#endif // SWIGPYTHON
+     </pre>
+Now you should edit the <tt>setup.py</tt> script and make some changes to reflect your
+personal system settings (libraries, paths, etc.). First of all you need to
+     <div class="itemizedlist"><ul type="disc"><li></li><li></li></ul></div>
+and then adjust some parameters and paths:
+    <div class="itemizedlist"><ul type="disc"><li></li><li></li><li></li></ul></div>
+Now you can run the setup.py script invoking it with <tt>python setup.py install</tt>. It
+will print out several warnings but don't bother about it. When everything goes smooth the
+Python/Mapscript module should now be compiled and ready to use. Check it with:
+    <pre class="programlisting">
+python
+Python 2.1.2 (#11, Jul 11 2002, 15:03:40) 
+[GCC 2.95.2 19991024 (release)] on linux2
+Type "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; import mapscript
+&gt;&gt;&gt; mapscript.MS_VERSION
+'3.6.1'
+    </pre>
+If setup.py or python complain about unresolved symbols get some help <a href="http://mapserver.gis.umn.edu/cgi-bin/wiki.pl?PythonMapScript" target="_top">here</a>. 
+    </p></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title"><a name="reference"></a>List of Classes and Functions</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="d45e144"></a>Information</h3></div></div><p>Access to the mapserver API is provided largely through a series of
+    classes. These will be resumed in the following chapter. 
+    It is not intended to give a detailed description of the object's methods and attributes. 
+    Therefore, please have a look at <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html" target="_top">
+     Perl MapScript Reference</a>. 
+    Examples with explicit comments are used to illustrate the implementation 
+    of Python/Mapscript classes an functions.
+    For using the Python/Mapscript module you have to import it like conventional Python modules:</p></div><pre class="programlisting">
+    &gt;&gt;&gt; import mapscript
+<span class="emphasis"><em>or:</em></span>
+    &gt;&gt;&gt; from mapscript import *
+    </pre><p>General information about the usage of modules can be found at the        
+   <a href="http://www.python.org/doc/current/tut/node8.html" target="_top">Python
+Tutorial section on modules</a>!
+    </p><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="constants"></a>Constants</h3></div></div><p>Many mapfile parameters take constant values, according to the
+listing in
+   <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html" target="_top">Perl MapScript Reference   </a>.
+   <p><span class="emphasis"><em>Example:</em></span></p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; from mapscript import *                  # 1)
+   &gt;&gt;&gt; myMap = mapObj('/map/data/mapfile.map')  # 2)
+   &gt;&gt;&gt; myMap.units = MS_INCHES                  # 3)
+   &gt;&gt;&gt; height = getattr(myMap, 'height')        # 4)
+   &gt;&gt;&gt; setattr(myMap.web, 'imagepath', '/tmp/') # 5)
+
+   1): Import mapscript module.
+   2): Create a map object of the mapfile 'mapfile.map'  
+   3): Assign the constant value 'MS_INCHES' to the map object's attribute 'units'.
+   4): Using the python function getattr(object,name) to access the attribute 'height' of 'myMap'.
+   5): Using python function setattr(object, name, value) for assigning a value to the object's attribute.
+   
+   
+   </pre>
+   </p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="mapobj"></a>mapObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>mapObj</em></span>  mapObj(<span class="emphasis"><em>string</em></span> mapfilename)
+   """Open a specified map definition file."""        
+   </pre><p><span class="emphasis"><em>Example:</em></span>
+   <p> 
+   <pre class="programlisting">
+   &gt;&gt;&gt; myMap = mapObj('demo.map') # 1)
+      
+   1): If the filename is undefined, an empty mapObj is created and initialized.           
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>The map object's attributes are conform to "members" performed
+   in the 'mapObj' section of <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#mapobj" target="_top"> Perl MapScript Reference</a>.
+   </p><p><span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; minExtX = myMap.extent.minx                        # 1)  
+   &gt;&gt;&gt; myMap.interlace = MS_TRUE                          # 2)
+   &gt;&gt;&gt; myMap.legend.keysizex = 18                         # 3)
+   &gt;&gt;&gt; myMap.legend.label.font = "conhobold"              # 4)
+   &gt;&gt;&gt; num_layers = myMap.numlayers                       # 5)
+   &gt;&gt;&gt; myMap.scalebar.color = myMap.addColor(255,255,255) # 6)
+   &gt;&gt;&gt; myMap.scalebar.width = 50                          # 7)
+
+   1): The attribute 'extent' returns a rectObj; the attribute 'minx' of a recObj returns a double value
+       for the left x-coordinate of a rectangle; this  value is assigned to a variable named minExtX.
+   2): mapObj's attribute 'interlace' is set on MS_TRUE.
+   3): The attribute 'keysize' of myMap's legend is set to 18.
+   4): The attribute font of the legend's label is set to an other font type.
+   5): The 'numlayers'-attribute of 'myMap' returns an int value, which is assigned to a variable.
+   6): The attribute 'color' (int) of myMap's scalebar is set to the color, which is added to the
+       current map object by using the method addColor(r,g,b).
+   7): The attribute 'witdh' of myMap's scalebar is set to 50.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>Methods of the mapObj class are listed in the <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#mapobj" target="_top"> Perl MapScript Reference</a>.
+   </p><p><span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+             
+   from mapscript import*
+   myMap = mapObj('/path/to/mapfile/map.map')   # 1)
+   img = myMap.draw()                           # 2)
+   while myMap.nextLabel():                     # 3)
+     lcmo = myMap.nextLabel()
+     if lcmo.status:                            # 4)
+       print "lcmo: %s"%(lcmo.string)
+       shp = lcmo.poly
+       for i in range (shp.numlines):           # 5)
+         print i
+         part = shp.get(i)
+         print "nr-lines: %d"%(i)
+         for j in range (part.numpoints):
+           n_point = part.get(j)
+           print "nr: %s  x: %s / y: %s"%(j,n_point.x,n_point.y)
+           
+  1): Generating a new mapObj.         
+  2): Creating an imgObj by using the mapObject's method draw(). imgObj is required create labels.
+  3): While iterating the labelcache a labelCacheMemberObj is created for every label layer.
+  4): If the status of the labelCacheMemberObj is 1, the particular label's name is printed and a shapeObj is 
+      created using the 'poly'-attribute of labelCacheMemberObj.
+  5): This Iteration prints the point of the label borders for the number of lines of the shape 'shp'.
+  </pre>
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="layerobj"></a>layerObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>layerObj</em></span>  layerObj(<span class="emphasis"><em>mapObj</em></span>)
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myLayer = layerObj(myMap) # 1)
+
+  1): Normally you obtain layerObj from an existing layer within a map, however you can create a
+      new layer.
+  </pre>
+  </p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#layerobj" target="_top"> Perl MapScript Reference:  layerObj members</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+       <pre class="programlisting">
+  &gt;&gt;&gt; num_classes = myLayer.numclasses   # 1)
+  &gt;&gt;&gt; result_cache = myLayer.resultcache # 2)
+
+  1): Attribute numclasses returns the number of classes of 'myLayer'.
+  2): Resultcache returns a resultCacheObj, which holds the results of a query against this
+      layer.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#layerobj" target="_top"> Perl MapScript Reference:  layerObj methods</a>.
+  </p><p>Note that the 'queryByAttributes' method is used like this: <span class="emphasis"><em>   int</em></span> queryByAttributes(mapObj map, char qitem, char qstring, int mode)
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; qryresult = myLayer.queryByPoint(myMap,n_point,MS_SINGLE,0) # 1)
+  &gt;&gt;&gt; resultmember = myLayer.getResult(0)                         # 2)
+  &gt;&gt;&gt; myLayer.open(myMap.shapepath)                               # 3)
+  0
+  &gt;&gt;&gt; myShape = shapeObj(-1)                                      # 4)
+  &gt;&gt;&gt; myLayer.getShape(myShape,-1,0)                              # 5)
+  0
+  &gt;&gt;&gt; myShape.bounds.minx                                         # 6)
+  3293309.60720301
+  &gt;&gt;&gt; myLayer.close()                                             # 7)
+
+  1): QueryByPoint(mapObj,pointObj,integer mode, double buffer)queries a single layer using a
+      point, returns integer.
+  2): GetResult(integer member)Retrieves the nth member of the result cache created by the
+      previous query, ie. queryByPoint, returns resultCacheMemberObj.
+  3): Allows access to the layer's shapefile. The layerObj must be opened for using its deposited shape data.
+      layerObj.open(character path); returns integer 0 on success, else 1 is returned.
+  4): Generates an empty shapeObj.
+  5): Gets myLayer's shape and puts it into 'myShape'; returns integer 0 on success, else 1 is returned.
+  6): Returns attribute bounds.minx of 'myShape'
+  7): After using the shape file must be closed.
+  </pre>
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="class"></a>classObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>classObj</em></span>  classObj(<span class="emphasis"><em>layerObj</em></span>)
+  """Creates a new class object from the given layerObj and returns a classObj."""
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myClass = classObj(myLayer)                 # 1)
+  &gt;&gt;&gt; myClass                                     # 2)
+      C classObj instance at _e42e1708_p_classObj&gt;
+
+  1): Create a new classObj, by a given layerObj.
+  2): Print the new instance on the python shell.
+  </pre>
+  </p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#classobj" target="_top"> Perl MapScript Reference:  classObj members</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myLayer = myMap.getLayer(1)   # 1)
+  &gt;&gt;&gt; myClass = myLayer.getClass(0) # 2)
+  &gt;&gt;&gt; myClass.status = 1            # 3)
+
+  1): Create a layerObj of one layer, given by the layer-index
+      of the layers of the current map object.
+  2): Create a classObj of one class, given by the class-index
+      of the classes of the current layer object.
+  3): Assign an int value to the attribute 'status' of the class
+     object 'myClass'; the status of 'MyClass' will than be MS_ON.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#classobj" target="_top"> Perl MapScript Reference:  classObj methods</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myClass.setExpression('([AREA] &gt; 500)')                  # 1)
+      0
+  &gt;&gt;&gt; myIcon = myClass.createLegendIcon(myMap, myLayer,  8, 8) # 2)
+
+  1): Set an expression on the current classObj, return value is integer.
+  2): Create a legend icon for the current classObj, return value is image.
+  </pre>
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="image"></a>imageObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>imageObj</em></span>  imageObj(<span class="emphasis"><em>width, height</em></span>)
+  """Create a new image object with the parameters Pixel width and height."""
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; img = imageObj(500,500) # 1)
+
+  1): Creates the new image object 'img'.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#imageobj" target="_top"> Perl MapScript Reference: imageObj members</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; img.imageurl = '/mapserver/tmp' # 1)
+
+  1): Set the base URL for IMAGEPATH. This is the URL that will take the web browser
+      to IMAGEPATH to get the images.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#imageobj" target="_top"> Perl MapScript Reference: imageObj methods</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; img.saveImage('/path/to/out.png',MS_PNG,0,0,0)
+
+  1): <span class="emphasis"><em>void</em></span> saveImage(character filename, type, transparent, interlace,
+      quality)
+  </pre>
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="label"></a>labelObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>labelObj</em></span>  labelObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myLabel = labelObj() # 1)
+
+  1): Create an instance of label object.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelobj" target="_top"> Perl MapScript Reference: labelObj members</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; l.size = 8 # 1)
+
+  1): Set new value for <span class="emphasis"><em>int</em></span> label.size.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>labelObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="labelcache"></a>labelCacheObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>labelCacheObj</em></span>  labelCacheObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myLabelCache = labelCacheObj() # 1)
+
+  1): Create an instance of labelCacheObj.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelcacheobj" target="_top"> Perl MapScript Reference: labelCacheObj members</a>.
+  </p><p><span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; num_label myLabelCache.numlabels # 1)
+
+  1): Return the number of labels of the current labelCacheObj.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>labelCacheObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="labelcachemember"></a>labelCacheMemberObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>labelCacheMemberObj</em></span>  labelCacheMemberObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myLabelCacheMember = labelCacheMemberObj() # 1)
+
+  1): Create an instance of labelCacheMemberObj.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#labelcachememberobj" target="_top"> Perl MapScript Reference: labelCacheObj members</a>.
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>labelCacheObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="markercachemember"></a>markerCacheMemberObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>markerCacheMemberObj</em></span>  markerCacheMemberObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myMarkerCacheMember = markerCacheMemberObj() # 1)
+
+  1): Creates an instance of markerCacheMemberObj.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#markercachememberobj" target="_top"> Perl MapScript Reference: markerCacheMemberObj members</a>.
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>markerCacheMemberObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="web"></a>webObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>webObj</em></span>  webObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myWebO = webObj() # 1)
+
+  1): Create new web object.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#webobj" target="_top"> Perl MapScript Reference: webObj members</a>.
+  </p><p>
+  <span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; img.imageurl = '/mapserver/tmp' # 1)
+
+  1): Set the base URL for IMAGEPATH. This is the URL that will take the web browser
+     to IMAGEPATH to get the images.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>webObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="refMap"></a>referenceMapObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+  <span class="emphasis"><em>referenceMapObj</em></span>  referenceMapObj()
+  </pre><p><span class="emphasis"><em>Example:</em></span>
+  <p>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myRefMap = referenceMapObj() # 1)
+
+  1): Create an instance of referenceMapObj.
+  </pre></p>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#referencemapobj" target="_top"> Perl MapScript Reference: referenceMapObj members</a>.
+  </p><p>
+  <span class="emphasis"><em>Example:</em></span>
+  <pre class="programlisting">
+  &gt;&gt;&gt; myRefMap.status = MS_ON # 1)
+
+  1): Turn status of referenceMapObj to MS_ON.
+  </pre>
+  </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>referenceMapObj class has no methods.
+  </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="querymap"></a>queryMapObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>queryMapObj</em></span>  queryMapObj()
+   </pre><p><span class="emphasis"><em>Example:</em></span>
+   <p> 
+   <pre class="programlisting">
+   &gt;&gt;&gt; myQueryMap = QueryMapObj() # 1)
+	         
+   1): Create an instance of QueryMapObj. 
+   </pre></p> 
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#querymapobj" target="_top"> Perl MapScript Reference: referenceMapObj members</a>.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="colorObj"></a>colorObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>colorObj</em></span>  colorObj()
+   </pre><p><span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myColor = colorObj() # 1)
+   1): Creat new colorObj.
+   </pre></p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#colorobj" target="_top"> Perl MapScript Reference: colorObj members</a>.
+   </p><p><span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myColor.red = 255 # 1)
+
+   1): Attribute red is set to integer 255.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>colorObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="pointObj"></a>pointObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>pointObj</em></span>  pointObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myPoint = pointObj() # 1)
+
+   1): Create an instance of pointObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#pointobj" target="_top"> Perl MapScript Reference: pointObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myPoint.x = 100    # 1)
+   &gt;&gt;&gt; pointx = myPoint.x # 2)
+   &gt;&gt;&gt; pointy = myPoint.y # 3)
+
+   1): Assign integer pixel value to the x coordinate of pointObj 'myPoint'.
+   2): Current x-coordinate of 'myPoint' is assigned to variable 'pointx'.
+   3): Current y-coordinate of 'myPoint' is assigned to variable 'pointy'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#pointobj" target="_top"> Perl MapScript Reference: pointObj methods</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; n_distance = myPoint.distanceToPoint(otherPoint) # 1)
+
+   1): <span class="emphasis"><em>double</em></span> distanceToPoint(pointObj); returns the
+   distance between two points
+   </pre>
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="lineObj"></a>lineObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>lineObj</em></span>  lineObj()
+   </pre><p><span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myLine = lineObj() # 1)
+
+   1): Create new lineObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#lineObj" target="_top"> Perl MapScript Reference: lineObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; n_points = myLine.numpoints # 1)
+
+   1): Assign int numpoints to variable 'n_points'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html" target="_top"> Perl MapScript Reference: lineObj methods</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myShapefile = shapefileObj('/path/to/data/file',-1) # 1)
+   &gt;&gt;&gt; myShape = shapeObj(MS_SHAPE_POLYGON)                # 2)
+   &gt;&gt;&gt; myShapefile.get(0, myShape)                         # 3)
+   &gt;&gt;&gt; myLine = myShape.get(0)                             # 4)
+   &gt;&gt;&gt; for i in range(myLine.mumpoints):                   # 5)
+   ...  myPoint = myLine.get(i)
+   ...  print myPoint
+
+   1): Create an instance of shapefileObj; <span class="emphasis"><em>shapefileObj</em></span> shapefileObj(filename,type)
+   2): Generate the shapeObj 'myShape'; <span class="emphasis"><em>shapeObj</em></span> shapeObj(type)
+   3): Retrieve a shape of 'myShapefile' by index; get(integer index,shapeObj) - returns integer, -1 if index
+       is &lt; 0 or &gt;= number of shapes
+   4): Generate a lineObj by a given shapeindex; <span class="emphasis"><em>lineObj</em></span> shapeObj.get(integer index)
+   5): The attribute numpoints of lineObj returns the lineObject's number of points. Range is used to iterate through
+       numpoints and creates a pointObj for every value of myLine.numpoints.
+   </pre>
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="shape"></a>shapeObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>shapeObj</em></span>  shapeObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myShape = shapeObj() # 1)
+
+   1): Creates an instance of shapeObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapeobj" target="_top"> Perl MapScript Reference: shapeObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; n_extents = myShape.bounds    # 1)
+   &gt;&gt;&gt; n_minx = myShape.bounds.minx  # 2)
+   &gt;&gt;&gt; n_miny = myShape.bounds.miny  # 3)
+   &gt;&gt;&gt; n_maxx = myShape.bounds.maxx  # 4)
+   &gt;&gt;&gt; n_maxy = myShape.bounds.maxy  # 5)
+   &gt;&gt;&gt; numlines = myShape.numlines   # 6)
+
+   1) to 6): Different parameters are read out from 'myShape' and assigned to varaibles
+
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapeobj" target="_top"> Perl MapScript Reference: shapeObj methods</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span></p><p>Please see <a href="#lineObj" title="lineObj Class">lineObj section</a> or <a href="#shapefile" title="shapefileObj Class">shapefileObj section</a> for more information.
+
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="shapefile"></a>shapefileObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>shapefileObj</em></span>  shapefileObj(filename,type)
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myShpfile = shapefileObj('lakes',-1)     # 1)
+   &gt;&gt;&gt; if not hasattr(myShpfile,'bounds'):
+   ...   print "Unable to open lakes shapefile"
+   ...
+
+
+   1): Create a shapfileObj from a existing file. No extension is necessary. For existing files type should be -1.
+       To create an empty file type can be MS_SHAPEFILE_POINT, MS_SHAPEFILE_ARC, MS_SHAPEFILE_POLYGON, 
+       or MS_SHAPEFILE_MULTIPOINT.To Close a shapefile you've opened you need to undefine the reference, 
+       ie. "myShpfile = None"
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapefileobj" target="_top"> Perl MapScript Reference: shapeObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; n_extents = myShpfile.bounds
+   &gt;&gt;&gt; n_minx = n_extents.minx
+   &gt;&gt;&gt; n_miny = n_extents.miny
+   &gt;&gt;&gt; n_maxx = n_extents.maxx
+   &gt;&gt;&gt; n_maxy = n_extents.maxy
+   &gt;&gt;&gt; n_numshapes = myShpfile.numshapes
+   &gt;&gt;&gt; typeno = myShpfile.type
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#shapefileobj" target="_top"> Perl MapScript Reference: shapefileObj methods</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myMap = mapObj('mapfile.map')             # 1)
+   &gt;&gt;&gt; myLayer = layerObj(myMap)                 # 2)
+   &gt;&gt;&gt; newshpf = shapefileObj("newshpfname", 5)  # 3)
+   &gt;&gt;&gt; poly = 400                                # 4)
+   &gt;&gt;&gt; shpf = shapefileObj("data_shapefile", -1) # 5)
+   &gt;&gt;&gt; shpo = new shapeObj(-1)                   # 6)
+   &gt;&gt;&gt; shpf.get(poly, shpo)                      # 7)
+   &gt;&gt;&gt; newshpf.add(shpo)                         # 8)
+   &gt;&gt;&gt; newrect = newshpf.bounds                  # 9)
+   &gt;&gt;&gt; newminx = newrect.minx
+   &gt;&gt;&gt; newminy = newrect.miny
+   &gt;&gt;&gt; newmaxx = newrect.maxx
+   &gt;&gt;&gt; newmaxy = newrect.maxy
+   &gt;&gt;&gt; newshpf = None 10)
+
+   1):  Open the map.
+   2):  Create the layer object to query.
+   3):  Create a new shapefile for the selection set.
+   4):  Set index value for selected shape.
+   5):  Create a shapefile object for getting queried shape.
+   6):  Create shape object for storing queried shape.
+   7):  Retrieve shape into shape object.
+   8):  Put shape into new shapefile.
+   9):  Get the extent of the new shapefile.
+   10): Close new shapefile.
+   </pre>
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="rectObj"></a>rectObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>rectObj</em></span>  rectObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myRect = rectObj()                # 1)
+
+   1): Generates the rectObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#rectobj" target="_top"> Perl MapScript Reference: rectObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; x = myRect.minx # 1)
+
+   1): Value of attribute minx (double left) is assigned varaible 'x'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#rectobj" target="_top"> Perl MapScript Reference: rectObj methods</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+
+   myRect = draw(myMap,myLayer,myImage,1,'text') # 1)
+
+   1): Draw(mapObj,layerObj,imageObj,integer classindex,character text); returns integer, 0 on success.
+       Draw an individual rectangle using layerObj. (The class_index is used to classify the feature based on the
+       classes defined for layerObj. The text string is used to annotate the shape.)
+   </pre>
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="itemObj"></a>itemObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>itemObj</em></span>  itemObj(string)
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myItem = itemObj() # 1)
+
+   1): Generates itemObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#itemobj" target="_top"> Perl MapScript Reference: itemObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myItem.name = 'a_item' # 1)
+     
+   1): Assigns 'a_item' to "myItem.name".
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>itemObj class has no methods.
+    </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="resultcache"></a>resultCacheObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>resultCacheObj</em></span>  resultCacheObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myResultCache = resultCacheObj()                # 1)
+
+   1): Generates a resultCacheObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#resultcacheobj" target="_top"> Perl MapScript Reference: resultCacheObj members</a>.
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>resultCacheMemberObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="resultcachemember"></a>resultCacheMemberObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>resultCacheMemberObj</em></span>  resultCacheMemberObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myResultMember = resultCacheMemberObj()                # 1)
+
+   1): Generates a resultCacheMemberObj.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#resultcacheobj" target="_top"> Perl MapScript Reference: resultCacheMemberObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; shaperecnum = myResultMember.shapeindex  # 1)
+
+   1): Returns the shapeindex of 'myResultMember'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>resultCacheMemberObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="projObj"></a>projectionObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>projectionObj</em></span>  projectionObj(string)
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myProjObj = projectionObj('proj=utm,ellps=GRS80,zone=15,north,no_defs') # 1)
+
+   1): Generates projectionObj 'myProjObj'.
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#projectionobj" target="_top"> Perl MapScript Reference: projectionObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; nr_args = myProjObj.numargs  # 1)
+
+   1): Returns integer numargs -  actual number of projection args.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>projectionObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="scalebarobj"></a>scalebarObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="scaleBarObj Class"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>scalebarObj</em></span>  scalebarObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myScalebar  = scalebarObj()
+
+   1): Generates a scalebarObj().
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#scalebarobj" target="_top"> Perl MapScript Reference: referenceMapObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; n_height = myScalebar.height  # 1)
+    
+   1): Assigns the height of 'myScalebar to variable 'n_height'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>projectionObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="legendobj"></a>legendObj Class</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><pre class="programlisting">
+   <span class="emphasis"><em>legendObj</em></span>  legendObj()
+   </pre><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <p>
+   <pre class="programlisting">
+   &gt;&gt;&gt; myLegend  = legendObj()
+
+   1): Generates a legendObj().
+   </pre>
+   </p>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="attribute"></a>Attributes</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#legendObj" target="_top"> Perl MapScript Reference: referenceMapObj members</a>.
+   </p><p>
+   <span class="emphasis"><em>Example:</em></span>
+   <pre class="programlisting">
+   &gt;&gt;&gt; l_height = myLegend.height  # 1)
+
+   1): Assigns the height of 'myLegend to variable 'l_height'.
+   </pre>
+   </p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>projectionObj class has no methods.
+   </p></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="DBF"></a>DBFInfo object</h3></div></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="intro"></a>Information</h4></div></div><p>While trying to build applications with python-mapscript it seemed that the DBFfile support that comes with
+mapscript included, is when used via python-mapscript rather unstable. We experienced segmentation faults pretty often.
+Therefor we used the dbf functions of the python binding of Frank Warmerdam's shapelib: <a href="http://gdal.velocet.ca/projects/shapelib/" target="_top">pyshapelib</a> (provided by Bernhard Herzog) for reading and writing dbf files.</p><p>The documentation to the DBFFile functions of the shapelib can be found <a href="http://gdal.velocet.ca/projects/shapelib/dbf_api.html" target="_top">here</a>.</p></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Constructor"></a>Constructors</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo" target="_top">http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo</a></p><pre class="programlisting">
+   <span class="emphasis"><em>DBFInfoObj</em></span>  msDBFCreate(<span class="emphasis"><em>string</em></span> dbf_filename)
+   """Creates a new DBF-file with the give name and returns a DBFInfoObj.
+   Omit an extension or if the extension is *.shp/SHP or *.shx/SHX it
+   is converted in *.dbf/DBF."""
+
+   <span class="emphasis"><em>DBFInfoObj</em></span>  msDBFOpen(<span class="emphasis"><em>string</em></span> dbf_filname, <span class="emphasis"><em>string</em></span>  access_parameters)
+   """Opens an existing DBF-file with the give name and returns a DBFInfoObj.
+    Access parameters can be "rb" (readonly) or "r+" (append)."""
+   </pre></div><div class="sect3"><div class="titlepage"><div><h4 class="title"><a name="Methods"></a>Methods</h4></div></div><p>cp.: <a href="http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo" target="_top">http://mapserver.gis.umn.edu/doc36/perlmapscript-reference.html#dbfinfo</a></p><pre class="programlisting">
+    <span class="emphasis"><em>int</em></span>  msDBFAddField(<span class="emphasis"><em>DBFInfoObj</em></span> dbffilehandlename, <span class="emphasis"><em>string </em></span>field_name, <span class="emphasis"><em>int</em></span> field_type, <span class="emphasis"><em>int</em></span> field_width, <span class="emphasis"><em>int</em></span> field_decimals)
+   """Adds a field to a dbf-file."""
+
+   <span class="emphasis"><em>int</em></span>  msDBFGetFieldCount(<span class="emphasis"><em>DBFInfoObj</em></span> dbffilehandlename)
+      """Returns the number of fields of a dbf-file."""
+
+   <span class="emphasis"><em>int</em></span>  msDBFWriteStringAttribute(<span class="emphasis"><em>DBFInfoObj</em></span> dbffilehandlename, <span class="emphasis"><em>int</em></span> record_nr, <span class="emphasis"><em>int</em></span> field_nr, <span class="emphasis"><em>string</em></span> attribute)
+      """Adds a string atttribute to a dbf record."""
+
+   <span class="emphasis"><em>string</em></span>  msDBFReadStringAttribute(<span class="emphasis"><em>DBFInfoObj</em></span> dbffilehandlename, <span class="emphasis"><em>int</em></span> record_nr, <span class="emphasis"><em>int</em></span> field_nr)
+      """Returns the string value of the specified dbf record."""
+
+   <span class="emphasis"><em>None</em></span>  msDBFClose(<span class="emphasis"><em>DBFInfoObj</em></span> dbffilehandlename)
+      """Close the dbf file and flush the last changes."""
+   <pre class="programlisting">   
+
+   <span class="emphasis"><em>Example:</em></span>
+  </pre>
+  """ Extracts basic descriptive information from the shapefile.
+  """
+  """ Starting this script on command line with an argument given: python shpinfo.py your_shp
+  """
+  
+  """Module import   
+  """
+  from mapscript import *                                                                                     
+  from string import *
+  import sys
+  import os
+  
+  """Definition of dictionaries for shape types and dbffield types.
+  """
+  shp_type = {'1':'Point','3':'Line','5':'Polygon','8':'MulitPoint'}
+  dbffield_type = {'0':'String','1':'Integer','2':'Double','3':'Invalid'}
+  
+  
+  def open_shpfile(name):
+    """Open ShapeFile and return shapeFileObj"""
+  
+    if os.access(sys.argv[1] + ".shp", os.F_OK):
+       shp = shapefileObj(sys.argv[1], -1)
+    else:
+       print "Can't access shapefile"
+       sys.exit(2)
+  
+    return shp
+    
+  def print_shpinfo(shp):
+    """Print shapefile Information ..."""
+  
+    print "Shape : \t%s" % split(shp.source,'/')[-1]
+    print "Path : \t%s" % join(split(shp.source,'/')[1:-1],'/')
+    print "Type : \t%s" % shp_type[str(shp.type)]
+    print "No. Shapes : \t%s" % shp.numshapes
+    print "Bounds : \t(%f,%f) (%f,%f)" % (shp.bounds.minx,shp.bounds.miny,shp.bounds.maxx,shp.bounds.maxy)
+    print split(shp.source,'/')[-1]
+    dbf = msDBFOpen("/%s/%s.dbf" % (join(split(shp.source,'/')[1:-1],'/'),str(split(shp.source,'/')[-1])),"rb")
+    print "\tName             Type    Length Decimals";
+    print "\t---------------- ------- ------ --------";
+    for field_nr in range(0,dbf.nFields):
+      print "\t%-16s %-7s %6d %8d" % (dbf.getFieldName(field_nr), dbffield_type[str(dbf.getFieldType(field_nr))], dbf.getFieldWidth(field_nr), dbf.getFieldDecimals(field_nr) )
+  
+    recnr = msDBFGetRecordCount(dbf)
+    print "Nr. of records: %s" % str(recnr)
+  
+  
+  """ Open shapefile, passed as argument while starting the script from command line.
+  """
+  """ Passed args are stored as a list of strings in sys.argv.
+  """
+  if __name__ == "__main__":
+     shp = open_shpfile(sys.argv[1])
+     print_shpinfo(shp)
+   </pre></div></div></div><div class="sect1"><div class="titlepage"><div><h2 class="title"><a name="docinfo"></a>About This Document</h2></div></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="copyright"></a>Copyright Information</h3></div></div><p>
+    Copyright (c) 2002, M. Schulz, in medias res GmbH - Freiburg, Germany.
+   </p><p>
+    This documentation is covered by the same Open Source license as the MapServer software.
+    See MapServer's
+    <a href="http://mapserver.gis.umn.edu/license.html" target="_top">License and
+    Credits</a> page for the complete text.
+   </p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="disclaimer"></a>Disclaimer</h3></div></div><p>
+    No liability for the contents of this document can be accepted.
+    Use the concepts, examples and other content at your own risk.
+    As this is a new edition of this document, there may be errors
+    and inaccuracies that may be damaging to your system.
+    Although this is highly unlikely, the author(s) do not take any
+    responsibility for that:  proceed with caution.
+   </p></div><div class="sect2"><div class="titlepage"><div><h3 class="title"><a name="feedback"></a>Feedback</h3></div></div><p>
+    Send any comments or suggestions to the document <a href="mailto:mschulz@webgis.de" target="_top">author(s)</a>.
+   </p></div></div></div><table xmlns="http://www.w3.org/TR/xhtml1/transitional" align="center" width="75%" border="1"><tr><td bgcolor="#FFFF66"><a href="javascript:add_comment()"><font size="+1">Add a Comment</font></a></td></tr><!--#include file=".txt"--></table><script xmlns="http://www.w3.org/TR/xhtml1/transitional" language="javascript">doc_footer();</script></body></html>
