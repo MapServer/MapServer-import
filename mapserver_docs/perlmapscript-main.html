@@ -904,13 +904,19 @@ Each class is described in detail later in this document.<br>
 <a name="classobj"></a><br>
 <b><u>classObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
       new mapscript::classObj(layerObj)
+    </td>
+    <td>
+      $labelcachemember->{class}
+    </td>
+    <td>
+      $layer->getClass(0)
     </td>
   </tr>
   <tr>
@@ -1247,13 +1253,29 @@ Each class is described in detail later in this document.<br>
 <a name="colorobj"></a><br>
 <b><u>colorObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
-      n/a
+      $legend->{imagecolor}
+    </td>
+    <td>
+      $map->{imagecolor}
+    </td>
+    <td>
+      $referencemap->{color}
+    </td>
+    <td>
+      $referencemap->{outlinecolor}
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      $scalebar->{imagecolor}
     </td>
   </tr>
 </table>
@@ -1321,13 +1343,38 @@ Each class is described in detail later in this document.<br>
 <a name="imageobj"></a><br>
 <b><u>imageObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
       new mapscript::imageObj(width, height)
+    </td>
+    <td>
+      $class->createLegendIcon($map,$layer,10,10)
+    </td>
+    <td>
+      $map->draw()
+    </td>
+    <td>
+      $map->drawLegend()
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      $map->drawQuery()
+    </td>
+    <td>
+      $map->drawReferenceMap()
+    </td>
+    <td>
+      $map->drawScalebar()
+    </td>
+    <td>
+      $map->prepareImage()
     </td>
   </tr>
 </table>
@@ -1415,13 +1462,16 @@ Each class is described in detail later in this document.<br>
 <a name="labelcachememberobj"></a><br>
 <b><u>labelCacheMemberObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
-      n/a
+      $labelcache->{labels}
+    </td>
+    <td>
+      $map->nextLabel()
     </td>
   </tr>
 </table>
@@ -1537,13 +1587,13 @@ Each class is described in detail later in this document.<br>
 <a name="labelcacheobj"></a><br>
 <b><u>labelCacheObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->labelcache
     </td>
   </tr>
 </table>
@@ -1631,13 +1681,19 @@ Each class is described in detail later in this document.<br>
 <a name="labelobj"></a><br>
 <b><u>labelObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
-      n/a
+      $class->{label}
+    </td>
+    <td>
+      $legend->{label}
+    </td>
+    <td>
+      $scalebar->{label}
     </td>
   </tr>
 </table>
@@ -1878,13 +1934,22 @@ Each class is described in detail later in this document.<br>
 <a name="layerobj"></a><br>
 <b><u>layerObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td>
       new mapscript::layerObj(mapObj)
+    </td>
+    <td>
+      $map->{layers}
+    </td>
+    <td>
+      $map->getLayer(0)
+    </td>
+    <td>
+      $map->getLayerByName("mylayer")
     </td>
   </tr>
   <tr>
@@ -2551,13 +2616,13 @@ Each class is described in detail later in this document.<br>
 <a name="legendobj"></a><br>
 <b><u>legendObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->{legend}
     </td>
   </tr>
 </table>
@@ -2707,13 +2772,19 @@ Each class is described in detail later in this document.<br>
 <a name="lineobj"></a><br>
 <b><u>lineObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
       new mapscript::lineObj()
+    </td>
+    <td>
+      $shape->{line}
+    </td>
+    <td>
+      $shape->get(0)
     </td>
   </tr>
 </table>
@@ -2802,7 +2873,7 @@ Each class is described in detail later in this document.<br>
 <a name="mapobj"></a><br>
 <b><u>mapObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
@@ -3574,13 +3645,13 @@ Each class is described in detail later in this document.<br>
 <a name="markercachememberobj"></a><br>
 <b><u>markerCacheMemberObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $labelcache->{markers}
     </td>
   </tr>
 </table>
@@ -3641,13 +3712,22 @@ Each class is described in detail later in this document.<br>
 <a name="pointobj"></a><br>
 <b><u>pointObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
       new mapscript::pointObj()
+    </td>
+    <td>
+      $labelcachemember->{point}
+    </td>
+    <td>
+      $line->{point}
+    </td>
+    <td>
+      $line->get(0)
     </td>
   </tr>
 </table>
@@ -3773,7 +3853,7 @@ Each class is described in detail later in this document.<br>
 <a name="projectionobj"></a><br>
 <b><u>projectionObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
@@ -3845,13 +3925,13 @@ Each class is described in detail later in this document.<br>
 <a name="querymapobj"></a><br>
 <b><u>queryMapObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->{querymap}
     </td>
   </tr>
 </table>
@@ -3931,13 +4011,38 @@ Each class is described in detail later in this document.<br>
 <a name="rectobj"></a><br>
 <b><u>rectObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
-      <b>Constructor:</b><br>
+      <b>Constructors:</b><br>
     </td>
     <td align="left">
       new mapscript::rectObj()
+    </td>
+    <td>
+      $map->{extent}
+    </td>
+    <td>
+      $referencemap->{extent}
+    </td>
+    <td>
+      $resultcache->{bounds}
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+    <td>
+      $shapefile->{bounds}
+    </td>
+    <td>
+      $shapefile->{statusbounds}
+    </td>
+    <td>
+      $shape->{bounds}
+    </td>
+    <td>
+      $web->{extent}
     </td>
   </tr>
 </table>
@@ -4043,13 +4148,13 @@ Each class is described in detail later in this document.<br>
 <a name="referencemapobj"></a><br>
 <b><u>referenceMapObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->{reference}
     </td>
   </tr>
 </table>
@@ -4178,13 +4283,13 @@ Each class is described in detail later in this document.<br>
 <a name="resultcachememberobj"></a><br>
 <b><u>resultCacheMemberObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $layer->getResult(0)
     </td>
   </tr>
 </table>
@@ -4244,13 +4349,13 @@ Each class is described in detail later in this document.<br>
 <a name="resultcacheobj"></a><br>
 <b><u>resultCacheObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $layer->{resultcache}
     </td>
   </tr>
 </table>
@@ -4303,13 +4408,13 @@ Each class is described in detail later in this document.<br>
 <a name="scalebarobj"></a><br>
 <b><u>scalebarObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->{scalebar}
     </td>
   </tr>
 </table>
@@ -4459,7 +4564,7 @@ Each class is described in detail later in this document.<br>
 <a name="shapefileobj"></a><br>
 <b><u>shapefileObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
@@ -4650,13 +4755,19 @@ Each class is described in detail later in this document.<br>
 <a name="shapeobj"></a><br>
 <b><u>shapeObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
       new mapscript::shapeObj(type)
+    </td>
+    <td>
+      $labelcachemember->{poly}
+    </td>
+    <td>
+      $markercachemember->{poly}
     </td>
   </tr>
 </table>
@@ -4869,7 +4980,7 @@ Each class is described in detail later in this document.<br>
 <a name="styleobj"></a><br>
 <b><u>styleObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
@@ -4983,13 +5094,13 @@ Each class is described in detail later in this document.<br>
 <a name="webobj"></a><br>
 <b><u>webObj:</u></b><br>
 <br>
-<table border="0">
+<table border="1">
   <tr>
     <td>
       <b>Constructor:</b><br>
     </td>
     <td align="left">
-      n/a
+      $map->{web}
     </td>
   </tr>
 </table>
