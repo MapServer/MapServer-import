@@ -18,7 +18,8 @@
   </author>
 
   <abstract>
-    <para>
+
+  <para>
       This document describes the procedures for obtaining,
       installing, and incorporating the <application>jBox</application> Java applet into
       MapServer web pages. 
