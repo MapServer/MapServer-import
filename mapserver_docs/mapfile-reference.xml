@@ -21,7 +21,7 @@
 			<para>
     			This document is a reference to the MapFile syntax for MapServer version 3.5.
    			</para>
-			<para>Last Updated:  12-12-2001</para>
+			<para>Last Updated:  05-21-2002</para>
 		</abstract>
 	</articleinfo>
 	<sect1>
@@ -792,6 +792,12 @@ END
 					<term>STATUS [on|off|embed]</term>
 					<listitem>
 						<para>Is the legend image to be created.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>TEMPLATE [filename]</term>
+					<listitem>
+						<para>The template file to use to generate HTML Legends.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
