@@ -13,7 +13,7 @@
 				<orgdiv>Canadian Center for Remote Sensing</orgdiv>
 				<orgdiv>GeoAccess Division</orgdiv>
 				<address>
-					<email>jdoyon@nrcan.gc.ca</email>
+					<email>jdoyon@ccrs.nrcan.gc.ca</email>
 				</address>
 			</affiliation>
 		</author>
@@ -21,7 +21,7 @@
 			<para>
     			This document is a reference to the MapFile syntax for MapServer version 3.6.
    			</para>
-			<para>Last Updated:  12-06-2002</para>
+			<para>Last Updated:  07-03-2003</para>
 		</abstract>
 	</articleinfo>
 	<sect1>
@@ -77,10 +77,10 @@
 						<para>Full filename of fontset file to use.</para>
 					</listitem>
 				</varlistentry>
-				<varlistentry>
+				<varlistentry id="imagecolor">
 					<term>IMAGECOLOR [r] [g] [b]</term>
 					<listitem>
-						<para>Color to initialize the map with (i.e. background color).</para>
+						<para>Color to initialize the map with (i.e. background color). When transparency is enabled (<link linkend="transparent">TRANSPARENT</link> ON) for the typical case of 8-bit pseudocolored map generation, this color will be marked as transparent in the output file palette.  Any other map components drawn in this color will also be transparent, so for map generation with transparency it is best to use an otherwise unused color as the background color.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
@@ -185,10 +185,10 @@
 						<para>Signals the start of a <link linkend="symbology">SYMBOL</link> object.</para>
 					</listitem>
 				</varlistentry>
-				<varlistentry>
+				<varlistentry id="transparent">
 					<term>TRANSPARENT [on|off]</term>
 					<listitem>
-						<para>Should the background color for the maps be transparent. Default is off.</para>
+						<para>Should the background color for the maps be transparent. Default is off. When transparency is enabled for the typical case of 8-bit pseudocolored map generation, the <link linkend="imagecolor">IMAGECOLOR</link> color will be marked as transparent in the output file palette.  Any other map components drawn in this color will also be transparenct, so for map generation with transparency it is best to use an otherwise unused color as the background color.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
