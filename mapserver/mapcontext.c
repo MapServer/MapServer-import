@@ -29,6 +29,9 @@
  * DEALINGS IN THE SOFTWARE.
  **********************************************************************
  * $Log$
+ * Revision 1.58.2.4  2004/09/16 14:02:42  julien
+ * Use different metadata for WMS and WFS, define default class for WFS.
+ *
  * Revision 1.58.2.3  2004/09/12 19:29:34  julien
  * Include all OWS versions
  *
@@ -556,35 +559,35 @@ int msLoadMapContextContactInfo( CPLXMLNode *psRoot, hashTableObj *metadata )
     // Contact Person primary
     msGetMapContextXMLHashValue(psRoot, 
                               "ContactPersonPrimary.ContactPerson", 
-                              metadata, "wms_contactperson");
+                              metadata, "ows_contactperson");
   msGetMapContextXMLHashValue(psRoot, 
                               "ContactPersonPrimary.ContactOrganization", 
-                              metadata, "wms_contactorganization");
+                              metadata, "ows_contactorganization");
   // Contact Position
   msGetMapContextXMLHashValue(psRoot, 
                               "ContactPosition", 
-                              metadata, "wms_contactposition");
+                              metadata, "ows_contactposition");
   // Contact Address
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.AddressType", 
-                              metadata, "wms_addresstype");
+                              metadata, "ows_addresstype");
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.Address", 
-                              metadata, "wms_address");
+                              metadata, "ows_address");
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.City", 
-                              metadata, "wms_city");
+                              metadata, "ows_city");
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.StateOrProvince", 
-                              metadata, "wms_stateorprovince");
+                              metadata, "ows_stateorprovince");
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.PostCode", 
-                              metadata, "wms_postcode");
+                              metadata, "ows_postcode");
   msGetMapContextXMLHashValue(psRoot, "ContactAddress.Country", 
-                              metadata, "wms_country");
+                              metadata, "ows_country");
 
   // Others
   msGetMapContextXMLHashValue(psRoot, "ContactVoiceTelephone", 
-                              metadata, "wms_contactvoicetelephone");
+                              metadata, "ows_contactvoicetelephone");
   msGetMapContextXMLHashValue(psRoot, "ContactFacsimileTelephone", 
-                              metadata, "wms_contactfacsimiletelephone");
+                              metadata, "ows_contactfacsimiletelephone");
   msGetMapContextXMLHashValue(psRoot, "ContactElectronicMailAddress", 
-                              metadata, "wms_contactelectronicmailaddress");
+                              metadata, "ows_contactelectronicmailaddress");
 
   return MS_SUCCESS;
 }
@@ -997,8 +1000,8 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   char *pszValue, *pszEncodedVal;
   char *pszHash, *pszName=NULL;
   CPLXMLNode *psFormatList, *psFormat, *psStyleList, *psStyle, *psServer;
-  int nStyle;  
-  
+  int nStyle;
+
   // Status
   pszValue = (char*)CPLGetXMLValue(psLayer, "hidden", "1");
   if((pszValue != NULL) && (atoi(pszValue) == 0))
@@ -1008,7 +1011,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
 
   // Name and Title
   pszValue = (char*)CPLGetXMLValue(psLayer, "Name", NULL);
-  if(pszValue != NULL)
+  if(pszValue != NULL && pszMName != NULL)
   {
       msInsertHashTable( &(layer->metadata), pszMName, pszValue );
 
@@ -1025,41 +1028,49 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       free(pszName);
   }
 
-  if(msGetMapContextXMLHashValue(psLayer, "Title", &(layer->metadata), 
-                                 pszMTitle) == MS_FAILURE)
+  if(pszMTitle != NULL)
   {
-      if(msGetMapContextXMLHashValue(psLayer, "Server.title", 
-                          &(layer->metadata), pszMTitle) == MS_FAILURE)
+      if(msGetMapContextXMLHashValue(psLayer, "Title", &(layer->metadata), 
+                                     pszMTitle) == MS_FAILURE)
       {
-          msDebug("Mandatory data Layer.Title missing in %s.", filename);
+          if(msGetMapContextXMLHashValue(psLayer, "Server.title", 
+                                 &(layer->metadata), pszMTitle) == MS_FAILURE)
+          {
+              msDebug("Mandatory data Layer.Title missing in %s.", filename);
+          }
       }
   }
 
   // Abstract
-  msGetMapContextXMLHashValue(psLayer, "Abstract", &(layer->metadata), 
-                              pszMAbstract);
+  if(pszMAbstract)
+      msGetMapContextXMLHashValue(psLayer, "Abstract", &(layer->metadata), 
+                                  pszMAbstract);
 
   // DataURL
-  if(!IS_OWS_CONTEXT(nVersion) && CONTEXT_VERSION(nVersion) <= OWS_0_1_4)
+  if(pszMDataURL != NULL)
   {
-      msGetMapContextXMLHashValueDecode(psLayer, 
-                                        "DataURL.OnlineResource.xlink:href",
-                                        &(layer->metadata), pszMDataURL);
-  }
-  else
-  {
-      // The DataURL have a width, height, format and an URL
-      // Width and height are not used, but they are included to
-      // be consistent with the spec.
-      msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "DataURL"), 
-                                           &(layer->metadata), pszMDataURL );
+      if(!IS_OWS_CONTEXT(nVersion) && CONTEXT_VERSION(nVersion) <= OWS_0_1_4)
+      {
+          msGetMapContextXMLHashValueDecode(psLayer, 
+                                           "DataURL.OnlineResource.xlink:href",
+                                            &(layer->metadata), pszMDataURL);
+      }
+      else
+      {
+          // The DataURL have a width, height, format and an URL
+          // Width and height are not used, but they are included to
+          // be consistent with the spec.
+          msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "DataURL"), 
+                                       &(layer->metadata), pszMDataURL );
+      }
   }
 
-  // The MetadataURL have a width, height, format and an URL
-  // Width and height are not used, but they are included to
-  // be consistent with the spec.
-  msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "MetadataURL"), 
-                                       &(layer->metadata), pszMMetadataURL );
+  if(pszMMetadataURL != NULL)
+      // The MetadataURL have a width, height, format and an URL
+      // Width and height are not used, but they are included to
+      // be consistent with the spec.
+      msLoadMapContextURLElements( CPLGetXMLNode(psLayer, "MetadataURL"), 
+                                   &(layer->metadata), pszMMetadataURL );
 
   //
   // MinScale && MaxScale
@@ -1194,35 +1205,39 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
   }
 
   // Projection
-  msLoadMapContextListInMetadata( psLayer, &(layer->metadata), 
-                                  "SRS", pszMSRS, " " );
-
-  pszHash = msLookupHashTable(&(layer->metadata), pszMSRS);
-  if(((pszHash == NULL) || (strcasecmp(pszHash, "") == 0)) && 
-     layer->map->projection.numargs != 0)
+  if( pszMSRS != NULL )
   {
-      pszProj = layer->map->projection.args[layer->map->projection.numargs-1];
+      msLoadMapContextListInMetadata( psLayer, &(layer->metadata), 
+                                      "SRS", pszMSRS, " " );
 
-      if(pszProj != NULL)
+      pszHash = msLookupHashTable(&(layer->metadata), pszMSRS);
+      if(((pszHash == NULL) || (strcasecmp(pszHash, "") == 0)) && 
+         layer->map->projection.numargs != 0)
       {
-          if(strncasecmp(pszProj, "AUTO:", 5) == 0)
+          pszProj = layer->map->projection.args[layer->map->projection.
+                                                numargs-1];
+
+          if(pszProj != NULL)
           {
-              msInsertHashTable(&(layer->metadata), pszMSRS, pszProj);
-          }
-          else
-          {
-              if(strlen(pszProj) > 10)
+              if(strncasecmp(pszProj, "AUTO:", 5) == 0)
               {
-                  pszProj = (char*) malloc(sizeof(char) * (strlen(pszProj)));
-                  sprintf( pszProj, "EPSG:%s", 
-                           layer->map->projection.args[
-                               layer->map->projection.numargs-1]+10);
                   msInsertHashTable(&(layer->metadata), pszMSRS, pszProj);
               }
               else
               {
-                  msDebug("Unable to set data for layer %s from this"
-                          " value %s.", pszMSRS, pszProj);
+                  if(strlen(pszProj) > 10)
+                  {
+                      pszProj = (char*) malloc(sizeof(char)*(strlen(pszProj)));
+                      sprintf( pszProj, "EPSG:%s", 
+                               layer->map->projection.args[
+                                   layer->map->projection.numargs-1]+10);
+                      msInsertHashTable(&(layer->metadata), pszMSRS, pszProj);
+                  }
+                  else
+                  {
+                      msDebug("Unable to set data for layer %s from this"
+                              " value %s.", pszMSRS, pszProj);
+                  }
               }
           }
       }
@@ -1240,7 +1255,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       psFormatList = psLayer;
   }
 
-  if(psFormatList != NULL)
+  if(pszMFormat != NULL && psFormatList != NULL)
   {
       for(psFormat = psFormatList->psChild; 
           psFormat != NULL; 
@@ -1261,7 +1276,7 @@ int msLoadMapContextAbstractView(layerObj *layer, CPLXMLNode *psLayer,
       psStyleList = psLayer;
   }
 
-  if(psStyleList != NULL)
+  if(pszMStyle != NULL && psStyleList != NULL)
   {
       nStyle = 0;
       for(psStyle = psStyleList->psChild; 
@@ -1332,6 +1347,8 @@ int msLoadMapContextFeature(mapObj *map, CPLXMLNode *psLayer,int nVersion,
 {
   CPLXMLNode *psFilter=NULL;
   layerObj *layer;
+  classObj *class;
+  styleObj *style;
   char *pszEncodedVal;
 
   // Init new layer
@@ -1354,9 +1371,28 @@ int msLoadMapContextFeature(mapObj *map, CPLXMLNode *psLayer,int nVersion,
                                    "wfs_onlineresource",
                                    "wfs_version",
                                    "wfs_srs", 
-                                   "ows_format",
+                                   NULL,
                                    "ows_style") == MS_FAILURE )
       return MS_FAILURE;
+
+  // Add a class to display something
+  class = &(layer->class[layer->numclasses]);
+  initClass(class);
+  class->layer = layer;
+  layer->numclasses++;
+
+  // Add a style in the class
+  style = &(class->styles[class->numstyles]);
+  style->size = 5;
+  style->symbol = 1;
+  class->numstyles++;
+
+  // Add a color in the style (black)
+  style->color.red = 0;
+  style->color.green = 0;
+  style->color.blue = 0;
+
+  msInsertHashTable( &(layer->metadata), "wfs_service", "WFS" );
 
   // Get the Filter attribute
   psFilter = CPLGetXMLNode(psLayer, "ogc:Filter");
@@ -1930,8 +1966,8 @@ int msWriteMapContextAbstractView(FILE *stream, layerObj *layer,
   // The MetadataURL have a width, height, format and an URL
   // The metadata will be structured like this: 
   // "width height format url"
-  pszURL = msLookupHashTable(&(layer->metadata),
-                             "wms_metadataurl_href");
+  pszURL = (char*)msOWSLookupMetadata(&(layer->metadata), namespaces,
+                                      "metadataurl_href");
   if(pszURL != NULL)
   {
       msWriteMapContextURLElements(stream, &(layer->metadata), 
@@ -2173,8 +2209,8 @@ int msWriteMapContextLayer(FILE *stream, layerObj *layer,
         //
         // Print the filter of the layer
         //
-        pszValue = msLookupHashTable(&(layer->metadata), 
-                                     "wfs_filter");
+        pszValue = (char*)msOWSLookupMetadata(&(layer->metadata), "FO", 
+                                              "filter");
         if(pszValue != NULL)
         {
             pszDecodedVal = strdup(pszValue);
