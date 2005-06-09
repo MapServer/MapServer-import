@@ -31,7 +31,7 @@
             <para>
                 This document is a reference to the MapFile syntax for MapServer version 4.4.
             </para>
-            <para>Last Updated:  11-28-2004</para>
+            <para>Last Updated:  06-09-2005</para>
             <para>
                 <link linkend="rhistory">Revision History</link>
             </para>
@@ -1246,8 +1246,9 @@ PROCESSING "BANDS=3,2,1,4"
                 <varlistentry>
                     <term>TRANSPARENT [on|off]</term>
                     <listitem>
-                        <para>Should the background color for the scalebar be transparent. This flag is now deprecated in favour of declaring transparency within <link linkend="outputformat">OUTPUTFORMAT</link> declarations. Default is off.</para>
-                    </listitem>
+                        <para>Should the IMAGECOLOR for the scalebar be transparent. Note that if any other scalebar parameters (COLOR, BACKGROUNDCOLOR, OUTLINECOLOR) 
+                        have the same RGB values as the IMAGECOLOR they will also become transparent. This flag is now deprecated in favour of declaring transparency within 
+                        <link linkend="outputformat">OUTPUTFORMAT</link> declarations. Default is off.</para>                    </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>UNITS [feet|inches|kilometers|meters|miles]</term>
@@ -1876,6 +1877,13 @@ END
 </para>
             <para>
                 <revhistory>
+                    <revision>
+                        <revnumber>Number: 1.52</revnumber>
+                        <date>Date: 2005-06-09</date>
+                        <authorinitials>Author: Jeff McKenna</authorinitials>
+                        <revremark>Modified scalebar TRANSPARENT description.
+                                   </revremark>
+                    </revision>                
                     <revision>
                         <revnumber>Number: 1.51</revnumber>
                         <date>Date: 2004-11-28</date>
