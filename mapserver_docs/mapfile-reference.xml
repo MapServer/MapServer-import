@@ -31,7 +31,7 @@
             <para>
                 This document is a reference to the MapFile syntax for MapServer version 4.4.
             </para>
-            <para>Last Updated:  06-09-2005</para>
+            <para>Last Updated:  06-10-2005</para>
             <para>
                 <link linkend="rhistory">Revision History</link>
             </para>
@@ -152,6 +152,14 @@ such options would be found in specific GDAL driver documentation.
                         <para>Signals the start of a <link linkend="legend">LEGEND</link>object.</para>
                     </listitem>
                 </varlistentry>
+                <varlistentry>
+                    <term>MAXSIZE [integer]</term>
+                    <listitem>
+                        <para>Sets the maximum size of the map image.  This will override the default value.  For example, setting this to 2048 means that you 
+                         can have up to 2048 pixels in both dimensions (i.e. max of 2048x2048).
+                        </para>
+                    </listitem>
+                </varlistentry>                 
                 <varlistentry>
                     <term>NAME [name]</term>
                     <listitem>
@@ -1878,7 +1886,14 @@ END
             <para>
                 <revhistory>
                     <revision>
-                        <revnumber>Number: 1.52</revnumber>
+                        <revnumber>Number: 1.51.2.2</revnumber>
+                        <date>Date: 2005-06-10</date>
+                        <authorinitials>Author: Jeff McKenna</authorinitials>
+                        <revremark>Added MAXSIZE for map object.
+                                   </revremark>
+                    </revision>                 
+                    <revision>
+                        <revnumber>Number: 1.51.2.1</revnumber>
                         <date>Date: 2005-06-09</date>
                         <authorinitials>Author: Jeff McKenna</authorinitials>
                         <revremark>Modified scalebar TRANSPARENT description.
