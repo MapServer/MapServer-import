@@ -22,7 +22,7 @@
                  This document describes the procedures for setting up an OGC compliant Web Map Server (WMS) through
           the use of MapServer v3.5 (and later).  
       </para>
-      <para>Last Updated: 2005-02-24</para>
+      <para>Last Updated: 2005-06-10</para>
       <para>
           <link linkend="rhistory">Revision History</link>
       </para>      
@@ -302,7 +302,7 @@
         </listitem>
         <listitem>
           <para>
-            Layer Metadata
+            Layer METADATA
           </para>
           <itemizedlist>
             <listitem>
@@ -317,6 +317,23 @@
             </listitem>
           </itemizedlist>
         </listitem>
+        <listitem>
+          <para>
+            Layer STATUS
+          </para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                Layers set to STATUS DEFAULT will always be sent to the client.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                Layers set to STATUS ON or STATUS OFF can be requested by the client.
+              </para>
+            </listitem>            
+          </itemizedlist>
+        </listitem>         
       </itemizedlist>
       <para>
         Let's go through each of these paramters in more detail:
