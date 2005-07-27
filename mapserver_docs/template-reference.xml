@@ -16,15 +16,15 @@
         </author>
         <abstract>
             <para>
-                This document is a reference for the MapServer 
-                development version HTML template.
+                This document is a reference for the MapServer version 4.6
+                HTML template.
             </para>   
             <para>
                 It is based on the previous versions written by Steve Lime
                 <email>steve.lime@dnr.state.mn.us</email>
             </para>   
             <para>
-                Last Updated:  2005-05-02
+                Last Updated:  2005-07-27
             </para>
 
       		<para><link linkend='rhistory'>Revision History</link></para>
@@ -1088,6 +1088,13 @@
   <para>
     <revhistory>
 
+      <revision>
+        <revnumber>Number: 1.16.2.1</revnumber>
+        <date>Date: 2005-05-02</date>
+        <authorinitials>Author: Frank Koormann</authorinitials>
+		<revremark>Version number updated to 4.6.
+		</revremark>
+      </revision>
       <revision>
         <revnumber>Number: 1.16</revnumber>
         <date>Date: 2005-05-02</date>

@@ -25,9 +25,9 @@
             </affiliation>
         </author>
         <abstract>
-            <para>        This document is a reference for the mapserv CGI
-        development version. </para>
-            <para>Last Updated:  2004-12-13</para>
+            <para>This document is a reference for the MapServer CGI 
+                  version 4.6</para>
+            <para>Last Updated:  2005-07-27</para>
             <para>
                 <link linkend="rhistory">Revision History</link>
             </para>
@@ -902,6 +902,13 @@
 </para>
             <para>
                 <revhistory>
+
+	            <revision>
+                        <revnumber>Number: 1.14.0.3</revnumber>
+                        <date>Date: 2005-07-27</date>
+                        <authorinitials>Author: Frank Koormann</authorinitials>
+                        <revremark>Version number updated to 4.6.</revremark>
+                    </revision>
 
                     <revision>
                         <revnumber>Number: 1.12</revnumber>
